@@ -16,73 +16,73 @@ import (
 )
 
 func main() {
-	// Добавляем флаг --version
-	version := flag.Bool("version", false, "Показать версию программы")
+	// Add --version flag
+	version := flag.Bool("version", false, "Show program version")
 	
 	fmt.Println("\033[1;36m==========================================\033[0m")
 	fmt.Println("\033[1;36m    2GC Network Protocol Suite\033[0m")
 	fmt.Println("\033[1;36m==========================================\033[0m")
-	fmt.Println("Комплексное тестирование QUIC, MASQUE, ICE/STUN/TURN и других сетевых протоколов")
-	mode := flag.String("mode", "test", "Режим: server | client | test")
-	addr := flag.String("addr", ":9000", "Адрес для подключения или прослушивания")
-	streams := flag.Int("streams", 1, "Количество потоков на соединение")
-	connections := flag.Int("connections", 1, "Количество QUIC-соединений")
-	duration := flag.Duration("duration", 0, "Длительность теста (0 — до ручного завершения)")
-	packetSize := flag.Int("packet-size", 1200, "Размер пакета (байт)")
-	rate := flag.Int("rate", 100, "Частота отправки пакетов (в секунду)")
-	reportPath := flag.String("report", "", "Путь к файлу для отчета (опционально)")
-	reportFormat := flag.String("report-format", "md", "Формат отчета: csv | md | json")
-	certPath := flag.String("cert", "", "Путь к TLS-сертификату (опционально)")
-	keyPath := flag.String("key", "", "Путь к TLS-ключу (опционально)")
-	pattern := flag.String("pattern", "random", "Шаблон данных: random | zeroes | increment")
-	noTLS := flag.Bool("no-tls", false, "Отключить TLS (для тестов)")
-	prometheus := flag.Bool("prometheus", false, "Экспортировать метрики Prometheus на /metrics")
-	quicBottom := flag.Bool("quic-bottom", false, "Запустить QUIC Bottom для визуализации метрик")
-	emulateLoss := flag.Float64("emulate-loss", 0, "Вероятность потери пакета (0..1)")
-	emulateLatency := flag.Duration("emulate-latency", 0, "Дополнительная задержка перед отправкой пакета (например, 20ms)")
-	emulateDup := flag.Float64("emulate-dup", 0, "Вероятность дублирования пакета (0..1)")
+	fmt.Println("Comprehensive testing of QUIC, MASQUE, ICE/STUN/TURN and other network protocols")
+	mode := flag.String("mode", "test", "Mode: server | client | test")
+	addr := flag.String("addr", ":9000", "Address for connection or listening")
+	streams := flag.Int("streams", 1, "Number of streams per connection")
+	connections := flag.Int("connections", 1, "Number of QUIC connections")
+	duration := flag.Duration("duration", 0, "Test duration (0 - until manual termination)")
+	packetSize := flag.Int("packet-size", 1200, "Packet size (bytes)")
+	rate := flag.Int("rate", 100, "Packet sending rate (per second)")
+	reportPath := flag.String("report", "", "Path to report file (optional)")
+	reportFormat := flag.String("report-format", "md", "Report format: csv | md | json")
+	certPath := flag.String("cert", "", "Path to TLS certificate (optional)")
+	keyPath := flag.String("key", "", "Path to TLS key (optional)")
+	pattern := flag.String("pattern", "random", "Data pattern: random | zeroes | increment")
+	noTLS := flag.Bool("no-tls", false, "Disable TLS (for testing)")
+	prometheus := flag.Bool("prometheus", false, "Export Prometheus metrics on /metrics")
+	quicBottom := flag.Bool("quic-bottom", false, "Start QUIC Bottom for metrics visualization")
+	emulateLoss := flag.Float64("emulate-loss", 0, "Packet loss probability (0..1)")
+	emulateLatency := flag.Duration("emulate-latency", 0, "Additional latency before packet sending (e.g., 20ms)")
+	emulateDup := flag.Float64("emulate-dup", 0, "Packet duplication probability (0..1)")
 	
-	// FEC флаги
-	fecEnabled := flag.Bool("enable-fec", false, "Включить Forward Error Correction")
-	fecRate := flag.Float64("fec-rate", 0.10, "Уровень избыточности FEC (0.05-0.20, например 0.05=5%, 0.10=10%, 0.20=20%)")
-	// Alias для обратной совместимости
-	fecEnabledAlias := flag.Bool("fec", false, "Alias для --enable-fec")
-	fecRedundancyAlias := flag.Float64("fec-redundancy", 0.10, "Alias для --fec-rate")
+	// FEC flags
+	fecEnabled := flag.Bool("enable-fec", false, "Enable Forward Error Correction")
+	fecRate := flag.Float64("fec-rate", 0.10, "FEC redundancy level (0.05-0.20, e.g. 0.05=5%, 0.10=10%, 0.20=20%)")
+	// Alias for backward compatibility
+	fecEnabledAlias := flag.Bool("fec", false, "Alias for --enable-fec")
+	fecRedundancyAlias := flag.Float64("fec-redundancy", 0.10, "Alias for --fec-rate")
 	
-	// PQC флаги
-	pqcEnabled := flag.Bool("pqc", false, "Включить Post-Quantum Cryptography (симуляция)")
-	pqcAlgorithm := flag.String("pqc-algorithm", "ml-kem-768", "PQC алгоритм: ml-kem-512, ml-kem-768, dilithium-2, hybrid, baseline")
+	// PQC flags
+	pqcEnabled := flag.Bool("pqc", false, "Enable Post-Quantum Cryptography (simulation)")
+	pqcAlgorithm := flag.String("pqc-algorithm", "ml-kem-768", "PQC algorithm: ml-kem-512, ml-kem-768, dilithium-2, hybrid, baseline")
 	
-	// SLA флаги
-	slaRttP95 := flag.Duration("sla-rtt-p95", 0, "SLA: максимальный RTT p95 (например, 100ms)")
-	slaLoss := flag.Float64("sla-loss", 0, "SLA: максимальная потеря пакетов (0..1, например, 0.01 для 1%)")
-	slaThroughput := flag.Float64("sla-throughput", 0, "SLA: минимальная пропускная способность (KB/s)")
-	slaErrors := flag.Int64("sla-errors", 0, "SLA: максимальное количество ошибок")
+	// SLA flags
+	slaRttP95 := flag.Duration("sla-rtt-p95", 0, "SLA: maximum RTT p95 (e.g., 100ms)")
+	slaLoss := flag.Float64("sla-loss", 0, "SLA: maximum packet loss (0..1, e.g., 0.01 for 1%)")
+	slaThroughput := flag.Float64("sla-throughput", 0, "SLA: minimum throughput (KB/s)")
+	slaErrors := flag.Int64("sla-errors", 0, "SLA: maximum number of errors")
 	
-	// QUIC тюнинг флаги
-	cc := flag.String("cc", "", "Алгоритм управления перегрузкой: cubic, bbr, bbrv2, bbrv3, reno")
-	maxIdleTimeout := flag.Duration("max-idle-timeout", 0, "Максимальное время простоя соединения")
-	handshakeTimeout := flag.Duration("handshake-timeout", 0, "Таймаут handshake")
-	keepAlive := flag.Duration("keep-alive", 0, "Интервал keep-alive")
-	maxStreams := flag.Int64("max-streams", 0, "Максимальное количество потоков")
-	maxStreamData := flag.Int64("max-stream-data", 0, "Максимальный размер данных потока")
-	enable0RTT := flag.Bool("enable-0rtt", false, "Включить 0-RTT")
-	enableKeyUpdate := flag.Bool("enable-key-update", false, "Включить key update")
-	enableDatagrams := flag.Bool("enable-datagrams", false, "Включить datagrams")
-	maxIncomingStreams := flag.Int64("max-incoming-streams", 0, "Максимальное количество входящих потоков")
-	maxIncomingUniStreams := flag.Int64("max-incoming-uni-streams", 0, "Максимальное количество входящих unidirectional потоков")
+	// QUIC tuning flags
+	cc := flag.String("cc", "", "Congestion control algorithm: cubic, bbr, bbrv2, bbrv3, reno")
+	maxIdleTimeout := flag.Duration("max-idle-timeout", 0, "Maximum connection idle timeout")
+	handshakeTimeout := flag.Duration("handshake-timeout", 0, "Handshake timeout")
+	keepAlive := flag.Duration("keep-alive", 0, "Keep-alive interval")
+	maxStreams := flag.Int64("max-streams", 0, "Maximum number of streams")
+	maxStreamData := flag.Int64("max-stream-data", 0, "Maximum stream data size")
+	enable0RTT := flag.Bool("enable-0rtt", false, "Enable 0-RTT")
+	enableKeyUpdate := flag.Bool("enable-key-update", false, "Enable key update")
+	enableDatagrams := flag.Bool("enable-datagrams", false, "Enable datagrams")
+	maxIncomingStreams := flag.Int64("max-incoming-streams", 0, "Maximum number of incoming streams")
+	maxIncomingUniStreams := flag.Int64("max-incoming-uni-streams", 0, "Maximum number of incoming unidirectional streams")
 	
-	// Сценарии тестирования
-	scenario := flag.String("scenario", "", "Предустановленный сценарий: wifi, lte, sat, dc-eu, ru-eu, loss-burst, reorder")
-	listScenarios := flag.Bool("list-scenarios", false, "Показать список доступных сценариев")
+	// Test scenarios
+	scenario := flag.String("scenario", "", "Predefined scenario: wifi, lte, sat, dc-eu, ru-eu, loss-burst, reorder")
+	listScenarios := flag.Bool("list-scenarios", false, "Show list of available scenarios")
 	
-	// Сетевые профили
-	networkProfile := flag.String("network-profile", "", "Сетевой профиль: wifi, lte, 5g, satellite, ethernet, fiber, datacenter")
-	listProfiles := flag.Bool("list-profiles", false, "Показать список доступных сетевых профилей")
+	// Network profiles
+	networkProfile := flag.String("network-profile", "", "Network profile: wifi, lte, 5g, satellite, ethernet, fiber, datacenter")
+	listProfiles := flag.Bool("list-profiles", false, "Show list of available network profiles")
 	
 	flag.Parse()
 
-	// Обработка флага --version
+	// Handle --version flag
 	if *version {
 		internal.PrintVersion()
 		os.Exit(0)
@@ -138,30 +138,30 @@ func main() {
 	fmt.Printf("mode=%s, addr=%s, connections=%d, streams=%d, duration=%s, packet-size=%d, rate=%d, report=%s, report-format=%s, cert=%s, key=%s, pattern=%s, no-tls=%v, prometheus=%v\n",
 		cfg.Mode, cfg.Addr, cfg.Connections, cfg.Streams, cfg.Duration.String(), cfg.PacketSize, cfg.Rate, cfg.ReportPath, cfg.ReportFormat, cfg.CertPath, cfg.KeyPath, cfg.Pattern, cfg.NoTLS, cfg.Prometheus)
 	
-	// Выводим SLA конфигурацию если настроена
+	// Print SLA configuration if set
 	internal.PrintSLAConfig(cfg)
 	
-	// Выводим QUIC конфигурацию если настроена
+	// Print QUIC configuration if set
 	internal.PrintQUICConfig(cfg)
 	
-	// Запуск QUIC Bottom если запрошен
+	// Start QUIC Bottom if requested
 	if *quicBottom {
 		fmt.Println("Starting QUIC Bottom for real-time metrics visualization...")
 		go func() {
-			// Запускаем QUIC Bottom в фоновом режиме
+			// Start QUIC Bottom in background mode
 			cmd := exec.Command("./quic-bottom/target/release/quic-bottom-real")
 			cmd.Dir = "."
 			if err := cmd.Run(); err != nil {
-				fmt.Printf("❌ Failed to start QUIC Bottom: %v\n", err)
+				fmt.Printf("Failed to start QUIC Bottom: %v\n", err)
 			}
 		}()
 		
-		// Ждем немного, чтобы QUIC Bottom запустился
+		// Wait a bit for QUIC Bottom to start
 		time.Sleep(2 * time.Second)
-		fmt.Println("✅ QUIC Bottom started on port 8080")
+		fmt.Println("QUIC Bottom started on port 8080")
 	}
 
-	// Обработка сценариев
+	// Handle scenarios
 	if *listScenarios {
 		fmt.Println("Available Test Scenarios:")
 		scenarios := internal.ListScenarios()
@@ -172,7 +172,7 @@ func main() {
 		os.Exit(0)
 	}
 	
-	// Обработка сетевых профилей
+	// Handle network profiles
 	if *listProfiles {
 		fmt.Println("Available Network Profiles:")
 		profiles := internal.ListNetworkProfiles()
@@ -190,7 +190,7 @@ func main() {
 			os.Exit(1)
 		}
 		
-		// Применяем конфигурацию сценария
+		// Apply scenario configuration
 		cfg = scenarioConfig.Config
 		fmt.Printf("Running scenario: %s\n", scenarioConfig.Name)
 	}
@@ -202,17 +202,17 @@ func main() {
 			os.Exit(1)
 		}
 		
-		// Применяем сетевой профиль
+		// Apply network profile
 		internal.ApplyNetworkProfile(&cfg, profile)
 		internal.PrintNetworkProfile(profile)
 		internal.PrintProfileRecommendations(profile)
 	}
 
-	// Инициализация QUIC Bottom (используем 127.0.0.1 вместо localhost для избежания IPv6 проблем)
+	// Initialize QUIC Bottom (use 127.0.0.1 instead of localhost to avoid IPv6 issues)
 	internal.InitBottomBridge("http://127.0.0.1:8080", 100*time.Millisecond)
 	internal.EnableBottomBridge()
 
-	// Обработка сигналов для graceful shutdown
+	// Handle signals for graceful shutdown
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
@@ -221,42 +221,42 @@ func main() {
 
 	go func(cancelFunc context.CancelFunc) {
 		<-sigs
-		fmt.Println("\nПолучен сигнал завершения, завершаем работу...")
-		cancelFunc() // Корректное завершение
+		fmt.Println("\nReceived termination signal, shutting down...")
+		cancelFunc() // Correct termination
 	}(cancel)
 
 	switch cfg.Mode {
 	case "server":
-		fmt.Println("Запуск в режиме сервера...")
+		fmt.Println("Starting in server mode...")
 		server.Run(cfg)
 	case "client":
-		fmt.Println("Запуск в режиме клиента...")
+		fmt.Println("Starting in client mode...")
 		client.Run(cfg)
 	case "test":
-		fmt.Println("Запуск в режиме теста (сервер+клиент)...")
+		fmt.Println("Starting in test mode (server+client)...")
 		runTestMode(cfg)
 	default:
-		fmt.Println("Неизвестный режим", cfg.Mode)
+		fmt.Println("Unknown mode", cfg.Mode)
 		os.Exit(1)
 	}
 }
 
-// runTestMode запускает сервер и клиент для тестирования
+// runTestMode starts server and client for testing
 func runTestMode(cfg internal.TestConfig) {
-	// Запускаем сервер в горутине
+	// Start server in goroutine
 	serverDone := make(chan struct{})
 	go func() {
 		defer close(serverDone)
 		server.Run(cfg)
 	}()
 
-	// Ждем, чтобы сервер запустился
+	// Wait for server to start
 	time.Sleep(3 * time.Second)
 
-	// Запускаем клиент
+	// Start client
 	client.Run(cfg)
 
-	// Даем серверу время на завершение gracefully (максимум 5 секунд)
+	// Give server time to shutdown gracefully (maximum 5 seconds)
 	serverTimeout := time.NewTimer(5 * time.Second)
 	select {
 	case <-serverDone:

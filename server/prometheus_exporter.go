@@ -10,33 +10,33 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promauto"
 )
 
-// AdvancedPrometheusExporter предоставляет продвинутые метрики Prometheus для сервера
+// AdvancedPrometheusExporter provides advanced Prometheus metrics for the server
 type AdvancedPrometheusExporter struct {
-	// Основные метрики
+	// Basic metrics
 	metrics *metrics.PrometheusMetrics
 
-	// Дополнительные метрики сервера
+	// Additional server metrics
 	serverMetrics *ServerMetrics
 
-	// Счетчики по типам запросов
+	// Request type counters
 	requestTypeCounters *prometheus.CounterVec
 
-	// Гистограммы по обработке запросов
+	// Request processing histograms
 	requestProcessingHistograms *prometheus.HistogramVec
 
-	// Метрики по соединениям
+	// Connection metrics
 	connectionMetrics *prometheus.GaugeVec
 
-	// Метрики по потокам
+	// Stream metrics
 	streamMetrics *prometheus.GaugeVec
 
-	// Метрики по обработке данных
+	// Data processing metrics
 	dataProcessingMetrics *prometheus.CounterVec
 
 	mu sync.RWMutex
 }
 
-// ServerMetrics содержит метрики сервера
+// ServerMetrics contains server metrics
 type ServerMetrics struct {
 	ServerAddr         string
 	MaxConnections     int
@@ -47,7 +47,7 @@ type ServerMetrics struct {
 	Uptime             time.Duration
 }
 
-// NewAdvancedPrometheusExporter создает новый экспортер метрик для сервера
+// NewAdvancedPrometheusExporter creates a new metrics exporter for the server
 func NewAdvancedPrometheusExporter(serverAddr string) *AdvancedPrometheusExporter {
 	return &AdvancedPrometheusExporter{
 		metrics: metrics.NewPrometheusMetrics(prometheus.DefaultRegisterer),
@@ -79,7 +79,7 @@ func NewAdvancedPrometheusExporter(serverAddr string) *AdvancedPrometheusExporte
 	}
 }
 
-// UpdateServerInfo обновляет информацию о сервере
+// UpdateServerInfo updates server information
 func (ape *AdvancedPrometheusExporter) UpdateServerInfo(maxConnections int) {
 	ape.mu.Lock()
 	defer ape.mu.Unlock()
@@ -89,57 +89,57 @@ func (ape *AdvancedPrometheusExporter) UpdateServerInfo(maxConnections int) {
 	ape.serverMetrics.Uptime = time.Since(ape.serverMetrics.StartTime)
 }
 
-// RecordRequestProcessing записывает обработку запроса
+// RecordRequestProcessing records request processing
 func (ape *AdvancedPrometheusExporter) RecordRequestProcessing(requestType, connectionID string, duration time.Duration, result string) {
-	// Записываем в основные метрики
+	// Record in basic metrics
 		ape.metrics.RecordScenarioDuration(duration)
 
-	// Записываем в специфичные для сервера метрики
+	// Record in server-specific metrics
 	ape.requestTypeCounters.WithLabelValues(requestType, connectionID, "", result).Inc()
 	ape.requestProcessingHistograms.WithLabelValues(requestType, connectionID, result).Observe(duration.Seconds())
 }
 
-// RecordConnectionInfo записывает информацию о соединении
+// RecordConnectionInfo records connection information
 func (ape *AdvancedPrometheusExporter) RecordConnectionInfo(connectionID, remoteAddr, tlsVersion, cipherSuite, state string) {
 	ape.connectionMetrics.WithLabelValues(connectionID, remoteAddr, tlsVersion, cipherSuite, state).Set(1)
 }
 
-// RecordStreamInfo записывает информацию о потоке
+// RecordStreamInfo records stream information
 func (ape *AdvancedPrometheusExporter) RecordStreamInfo(streamID, connectionID, streamType, state, direction string) {
 	ape.streamMetrics.WithLabelValues(streamID, connectionID, streamType, state, direction).Set(1)
 }
 
-// RecordDataProcessing записывает обработку данных
+// RecordDataProcessing records data processing
 func (ape *AdvancedPrometheusExporter) RecordDataProcessing(operation, connectionID, streamID, dataType string, bytes int64) {
 	ape.dataProcessingMetrics.WithLabelValues(operation, connectionID, streamID, dataType).Add(float64(bytes))
 }
 
-// RecordLatency записывает задержку
+// RecordLatency records latency
 func (ape *AdvancedPrometheusExporter) RecordLatency(latency time.Duration) {
 	ape.metrics.RecordLatency(latency)
 }
 
-// RecordJitter записывает джиттер
+// RecordJitter records jitter
 func (ape *AdvancedPrometheusExporter) RecordJitter(jitter time.Duration) {
 	ape.metrics.RecordJitter(jitter)
 }
 
-// RecordThroughput записывает пропускную способность
+// RecordThroughput records throughput
 func (ape *AdvancedPrometheusExporter) RecordThroughput(throughput float64) {
 	ape.metrics.RecordThroughput(int64(throughput))
 }
 
-// RecordHandshakeTime записывает время handshake
+// RecordHandshakeTime records handshake time
 func (ape *AdvancedPrometheusExporter) RecordHandshakeTime(duration time.Duration) {
 	ape.metrics.RecordHandshakeTime(duration)
 }
 
-// RecordRTT записывает RTT
+// RecordRTT records RTT
 func (ape *AdvancedPrometheusExporter) RecordRTT(rtt time.Duration) {
 	ape.metrics.RecordRTT(rtt)
 }
 
-// IncrementConnections увеличивает счетчик соединений
+// IncrementConnections increments connection counter
 func (ape *AdvancedPrometheusExporter) IncrementConnections() {
 	ape.metrics.IncrementConnections()
 	ape.mu.Lock()
@@ -147,7 +147,7 @@ func (ape *AdvancedPrometheusExporter) IncrementConnections() {
 	ape.mu.Unlock()
 }
 
-// DecrementConnections уменьшает счетчик соединений
+// DecrementConnections decrements connection counter
 func (ape *AdvancedPrometheusExporter) DecrementConnections() {
 	ape.metrics.DecrementConnections()
 	ape.mu.Lock()
@@ -155,7 +155,7 @@ func (ape *AdvancedPrometheusExporter) DecrementConnections() {
 	ape.mu.Unlock()
 }
 
-// IncrementStreams увеличивает счетчик потоков
+// IncrementStreams increments stream counter
 func (ape *AdvancedPrometheusExporter) IncrementStreams() {
 	ape.metrics.IncrementStreams()
 	ape.mu.Lock()
@@ -163,7 +163,7 @@ func (ape *AdvancedPrometheusExporter) IncrementStreams() {
 	ape.mu.Unlock()
 }
 
-// DecrementStreams уменьшает счетчик потоков
+// DecrementStreams decrements stream counter
 func (ape *AdvancedPrometheusExporter) DecrementStreams() {
 	ape.metrics.DecrementStreams()
 	ape.mu.Lock()
@@ -171,87 +171,87 @@ func (ape *AdvancedPrometheusExporter) DecrementStreams() {
 	ape.mu.Unlock()
 }
 
-// AddBytesSent добавляет отправленные байты
+// AddBytesSent adds sent bytes
 func (ape *AdvancedPrometheusExporter) AddBytesSent(bytes int64) {
 	ape.metrics.AddBytesSent(bytes)
 }
 
-// AddBytesReceived добавляет полученные байты
+// AddBytesReceived adds received bytes
 func (ape *AdvancedPrometheusExporter) AddBytesReceived(bytes int64) {
 	ape.metrics.AddBytesReceived(bytes)
 }
 
-// IncrementErrors увеличивает счетчик ошибок
+// IncrementErrors increments error counter
 func (ape *AdvancedPrometheusExporter) IncrementErrors() {
 	ape.metrics.IncrementErrors()
 }
 
-// IncrementRetransmits увеличивает счетчик ретрансмиссий
+// IncrementRetransmits increments retransmission counter
 func (ape *AdvancedPrometheusExporter) IncrementRetransmits() {
 	ape.metrics.IncrementRetransmits()
 }
 
-// IncrementHandshakes увеличивает счетчик handshake
+// IncrementHandshakes increments handshake counter
 func (ape *AdvancedPrometheusExporter) IncrementHandshakes() {
 	ape.metrics.IncrementHandshakes()
 }
 
-// IncrementZeroRTT увеличивает счетчик 0-RTT
+// IncrementZeroRTT increments 0-RTT counter
 func (ape *AdvancedPrometheusExporter) IncrementZeroRTT() {
 	ape.metrics.IncrementZeroRTT()
 }
 
-// IncrementOneRTT увеличивает счетчик 1-RTT
+// IncrementOneRTT increments 1-RTT counter
 func (ape *AdvancedPrometheusExporter) IncrementOneRTT() {
 	ape.metrics.IncrementOneRTT()
 }
 
-// IncrementSessionResumptions увеличивает счетчик возобновлений сессии
+// IncrementSessionResumptions increments session resumption counter
 func (ape *AdvancedPrometheusExporter) IncrementSessionResumptions() {
 	ape.metrics.IncrementSessionResumptions()
 }
 
-// SetCurrentThroughput устанавливает текущую пропускную способность
+// SetCurrentThroughput sets current throughput
 func (ape *AdvancedPrometheusExporter) SetCurrentThroughput(throughput float64) {
 	ape.metrics.SetCurrentThroughput(int64(throughput))
 }
 
-// SetCurrentLatency устанавливает текущую задержку
+// SetCurrentLatency sets current latency
 func (ape *AdvancedPrometheusExporter) SetCurrentLatency(latency time.Duration) {
 	ape.metrics.SetCurrentLatency(latency)
 }
 
-// SetPacketLossRate устанавливает коэффициент потерь пакетов
+// SetPacketLossRate sets packet loss rate
 func (ape *AdvancedPrometheusExporter) SetPacketLossRate(rate float64) {
 	ape.metrics.SetPacketLossRate(rate)
 }
 
-// SetConnectionDuration устанавливает длительность соединения
+// SetConnectionDuration sets connection duration
 func (ape *AdvancedPrometheusExporter) SetConnectionDuration(duration time.Duration) {
 	ape.metrics.SetConnectionDuration(duration)
 }
 
-// RecordScenarioEvent записывает событие сценария
+// RecordScenarioEvent records scenario event
 func (ape *AdvancedPrometheusExporter) RecordScenarioEvent(scenario, connectionID, streamID, result string) {
 	ape.metrics.RecordScenarioEvent(scenario)
 }
 
-// RecordErrorEvent записывает событие ошибки
+// RecordErrorEvent records error event
 func (ape *AdvancedPrometheusExporter) RecordErrorEvent(errorType, connectionID, streamID, severity string) {
 	ape.metrics.RecordErrorEvent(errorType)
 }
 
-// RecordProtocolEvent записывает событие протокола
+// RecordProtocolEvent records protocol event
 func (ape *AdvancedPrometheusExporter) RecordProtocolEvent(eventType, connectionID, tlsVersion, cipherSuite string) {
 	ape.metrics.RecordProtocolEvent(eventType)
 }
 
-// RecordNetworkLatency записывает сетевую задержку по профилю
+// RecordNetworkLatency records network latency by profile
 func (ape *AdvancedPrometheusExporter) RecordNetworkLatency(networkProfile, connectionID, region string, latency time.Duration) {
 	ape.metrics.RecordNetworkLatency(latency)
 }
 
-// GetServerMetrics возвращает текущие метрики сервера
+// GetServerMetrics returns current server metrics
 func (ape *AdvancedPrometheusExporter) GetServerMetrics() *ServerMetrics {
 	ape.mu.RLock()
 	defer ape.mu.RUnlock()

@@ -20,7 +20,7 @@ import (
 	quic "github.com/quic-go/quic-go"
 )
 
-// serverMetrics хранит метрики сервера
+// serverMetrics stores server metrics
 type serverMetrics struct {
 	mu          sync.Mutex
 	Connections int
@@ -28,17 +28,17 @@ type serverMetrics struct {
 	Bytes       int64
 	Errors      int
 	Start       time.Time
-	FECDecoder  *fec.FECDecoder // FEC decoder для восстановления пакетов
+	FECDecoder  *fec.FECDecoder // FEC decoder for packet recovery
 }
 
-// Run запускает сервер с параметрами из TestConfig
+// Run starts the server with parameters from TestConfig
 func Run(cfg internal.TestConfig) {
 	metrics := &serverMetrics{
 		Start:      time.Now(),
-		FECDecoder: fec.NewFECDecoder(), // Инициализируем FEC decoder если нужно
+		FECDecoder: fec.NewFECDecoder(), // Initialize FEC decoder if needed
 	}
 	
-	// Периодическая очистка старых групп FEC
+	// Periodic cleanup of old FEC groups
 	go func() {
 		ticker := time.NewTicker(1 * time.Second)
 		defer ticker.Stop()
@@ -56,16 +56,16 @@ func Run(cfg internal.TestConfig) {
 	tlsConf := makeTLSConfig(cfg)
 	listener, err := quic.ListenAddr(cfg.Addr, tlsConf, &quic.Config{})
 	if err != nil {
-		log.Fatalf("Ошибка запуска QUIC сервера: %v", err)
+		log.Fatalf("Failed to start QUIC server: %v", err)
 	}
-	log.Printf("QUIC сервер слушает %s", cfg.Addr)
+	log.Printf("QUIC server listening on %s", cfg.Addr)
 
 	done := make(chan struct{})
 	go func() {
 		c := make(chan os.Signal, 1)
 		signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 		<-c
-		log.Println("Остановка сервера...")
+		log.Println("Stopping server...")
 		if err := listener.Close(); err != nil {
 			log.Printf("Warning: failed to close listener: %v\n", err)
 		}
@@ -88,7 +88,7 @@ func Run(cfg internal.TestConfig) {
 		}
 	}()
 
-	// Ожидание завершения
+	// Wait for completion
 	<-done
 }
 
@@ -121,13 +121,13 @@ func handleStream(stream quic.Stream, metrics *serverMetrics) {
 	for {
 		n, err := stream.Read(buf)
 		if n > 0 {
-			// Проверяем, является ли это FEC repair пакетом (начинается с 0xFE 0xC0)
+			// Check if this is a FEC repair packet (starts with 0xFE 0xC0)
 			if n >= 11 && buf[0] == 0xFE && buf[1] == 0xC0 {
-				// Это FEC repair пакет
+				// This is a FEC repair packet
 				if metrics.FECDecoder != nil {
 					recovered, recoveredList := metrics.FECDecoder.AddRedundancyPacket(buf[:n])
 					if recovered && len(recoveredList) > 0 {
-						// Успешно восстановлены пакеты
+						// Successfully recovered packets
 						for _, rec := range recoveredList {
 							metrics.mu.Lock()
 							metrics.Bytes += int64(len(rec.Data))
@@ -136,12 +136,12 @@ func handleStream(stream quic.Stream, metrics *serverMetrics) {
 					}
 				}
 			} else {
-				// Обычный пакет
+				// Regular packet
 				metrics.mu.Lock()
 				metrics.Bytes += int64(n)
 				metrics.mu.Unlock()
 				
-				// Добавляем в FEC decoder для возможного восстановления
+				// Add to FEC decoder for possible recovery
 				if metrics.FECDecoder != nil {
 					metrics.FECDecoder.AddPacket(buf[:n], packetID, groupID)
 					packetID++
@@ -167,7 +167,7 @@ func makeTLSConfig(cfg internal.TestConfig) *tls.Config {
 	if cfg.CertPath != "" && cfg.KeyPath != "" {
 		cert, err := tls.LoadX509KeyPair(cfg.CertPath, cfg.KeyPath)
 		if err != nil {
-			log.Fatalf("Ошибка загрузки сертификата: %v", err)
+			log.Fatalf("Certificate loading error: %v", err)
 		}
 		return &tls.Config{
 			Certificates: []tls.Certificate{cert},
@@ -176,11 +176,11 @@ func makeTLSConfig(cfg internal.TestConfig) *tls.Config {
 		}
 	}
 	
-	// Используем единую функцию для генерации TLS конфигурации
+	// Use unified function for TLS configuration generation
 	return internal.GenerateTLSConfig(cfg.NoTLS)
 }
 
-// printServerMetrics удалена - больше не используется
+// printServerMetrics removed - no longer used
 
 func startPrometheusExporter(metrics *serverMetrics) {
 	connections := prometheus.NewGaugeFunc(prometheus.GaugeOpts{
@@ -226,7 +226,7 @@ func startPrometheusExporter(metrics *serverMetrics) {
 
 	prometheus.MustRegister(connections, streams, bytes, errors, uptime)
 	http.Handle("/metrics", promhttp.Handler())
-	fmt.Println("Prometheus endpoint сервера доступен на :2113/metrics")
+	fmt.Println("Prometheus server endpoint available at :2113/metrics")
 	if err := http.ListenAndServe(":2113", nil); err != nil {
 		log.Printf("Failed to start Prometheus server: %v", err)
 	}
