@@ -175,7 +175,7 @@ func (s *Server) renderNewTestHTML(w http.ResponseWriter, data interface{}) {
                     <div class="form-group">
                         <label for="mode">Test Mode</label>
                         <select id="mode" name="mode" required>
-                            <option value="test">Integrated (Server + Client)</option>
+                            <option value="test" selected>Integrated (Server + Client)</option>
                             <option value="client">Client Only</option>
                             <option value="server">Server Only</option>
                         </select>

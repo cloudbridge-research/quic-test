@@ -176,23 +176,69 @@ func (api *APIServer) parseTestConfig(raw map[string]interface{}) (*internal.Tes
 	config := &internal.TestConfig{}
 	
 	// Parse basic fields
-	if v, ok := raw["mode"].(string); ok {
+	if v, ok := raw["mode"].(string); ok && v != "" {
 		config.Mode = v
+	} else {
+		config.Mode = "test" // default mode
 	}
-	if v, ok := raw["addr"].(string); ok {
+	if v, ok := raw["addr"].(string); ok && v != "" {
 		config.Addr = v
+	} else {
+		config.Addr = "localhost:9000" // default address
 	}
 	if v, ok := raw["connections"].(float64); ok {
 		config.Connections = int(v)
+	} else if v, ok := raw["connections"].(string); ok {
+		if v == "" {
+			config.Connections = 2 // default value
+		} else if parsed, err := strconv.Atoi(v); err == nil {
+			config.Connections = parsed
+		} else {
+			return nil, fmt.Errorf("invalid connections value: %s", v)
+		}
+	} else {
+		config.Connections = 2 // default value
 	}
+	
 	if v, ok := raw["streams"].(float64); ok {
 		config.Streams = int(v)
+	} else if v, ok := raw["streams"].(string); ok {
+		if v == "" {
+			config.Streams = 4 // default value
+		} else if parsed, err := strconv.Atoi(v); err == nil {
+			config.Streams = parsed
+		} else {
+			return nil, fmt.Errorf("invalid streams value: %s", v)
+		}
+	} else {
+		config.Streams = 4 // default value
 	}
 	if v, ok := raw["packet_size"].(float64); ok {
 		config.PacketSize = int(v)
+	} else if v, ok := raw["packet_size"].(string); ok {
+		if v == "" {
+			config.PacketSize = 1200 // default value
+		} else if parsed, err := strconv.Atoi(v); err == nil {
+			config.PacketSize = parsed
+		} else {
+			return nil, fmt.Errorf("invalid packet_size value: %s", v)
+		}
+	} else {
+		config.PacketSize = 1200 // default value
 	}
+	
 	if v, ok := raw["rate"].(float64); ok {
 		config.Rate = int(v)
+	} else if v, ok := raw["rate"].(string); ok {
+		if v == "" {
+			config.Rate = 100 // default value
+		} else if parsed, err := strconv.Atoi(v); err == nil {
+			config.Rate = parsed
+		} else {
+			return nil, fmt.Errorf("invalid rate value: %s", v)
+		}
+	} else {
+		config.Rate = 100 // default value
 	}
 	if v, ok := raw["prometheus"].(bool); ok {
 		config.Prometheus = v
@@ -217,6 +263,11 @@ func (api *APIServer) parseTestConfig(raw map[string]interface{}) (*internal.Tes
 		} else {
 			return nil, fmt.Errorf("invalid duration format: %s", v)
 		}
+	} else if v, ok := raw["duration"].(float64); ok {
+		// Handle case where duration comes as nanoseconds (number)
+		config.Duration = time.Duration(int64(v))
+	} else {
+		config.Duration = 60 * time.Second // default 60 seconds
 	}
 	
 	if v, ok := raw["emulate_latency"].(string); ok && v != "" {
