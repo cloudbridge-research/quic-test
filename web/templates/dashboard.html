@@ -11,51 +11,64 @@
 <body>
     <div class="lgn-grow">
         <div class="lgn-header">
-            <h1>QUIC Testing Dashboard</h1>
+            <div class="header-content">
+                <img src="/static/pic/logo.png" alt="Cloudbridge Research" class="header-logo">
+                <h1>Cloudbridge Research</h1>
+                <h2>QUIC Test</h2>
+            </div>
+            
         </div>
 
         <div class="content-container">
-            <div class="lgn-head">
-                <h1>Network Protocol Testing Interface</h1>
-                <p>Professional QUIC protocol testing and performance monitoring</p>
-            </div>
 
-            <!-- Process Management Section -->
-            <section class="dashboard-section">
-                <h2>Process Management</h2>
-                <div class="lgn-row">
-                    <div class="process-control-group">
-                        <div class="process-status-row">
-                            <span class="process-label">QUIC Server:</span>
-                            <span id="server-status" class="status-indicator status-stopped">Stopped</span>
+
+            <div class="dashboard-top-row">
+                <!-- Process Management Section -->
+                <section class="dashboard-section">
+                    <h2>Process Management</h2>
+                    <div class="lgn-row">
+                        <div class="process-control-group">
+                            <div class="process-status-container">
+                                <div class="process-status-row">
+                                    <span class="process-label">QUIC Server</span>
+                                    <span id="server-status" class="status-indicator status-stopped">Stopped</span>
+                                </div>
+                                <div class="process-actions-row">
+                                    <div class="lgn-actions">
+                                        <button id="server-start" class="lgn-raised-button lgn-success">Start Server</button>
+                                        <button id="server-stop" class="lgn-stroked-button lgn-warn">Stop Server</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="lgn-actions">
-                            <button id="server-start" class="lgn-button lgn-success">Start Server</button>
-                            <button id="server-stop" class="lgn-stroked-button lgn-warn">Stop Server</button>
+                    </div>
+
+                    <div class="lgn-row">
+                        <div class="process-control-group">
+                            <div class="process-status-container">
+                                <div class="process-status-row">
+                                    <span class="process-label">QUIC Client</span>
+                                    <span id="client-status" class="status-indicator status-stopped">Stopped</span>
+                                </div>
+                                <div class="process-actions-row">
+                                    <div class="lgn-actions">
+                                        <button id="client-start" class="lgn-raised-button lgn-success">Start Client</button>
+                                        <button id="client-stop" class="lgn-stroked-button lgn-warn">Stop Client</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="process-control-group">
-                        <div class="process-status-row">
-                            <span class="process-label">QUIC Client:</span>
-                            <span id="client-status" class="status-indicator status-stopped">Stopped</span>
-                        </div>
-                        <div class="lgn-actions">
-                            <button id="client-start" class="lgn-button lgn-success">Start Client</button>
-                            <button id="client-stop" class="lgn-stroked-button lgn-warn">Stop Client</button>
-                        </div>
+                    <div class="lgn-actions lgn-justify-center">
+                        <button id="test-start" class="lgn-raised-button lgn-primary">Start Integrated Test</button>
+                        <button id="test-stop" class="lgn-stroked-button lgn-warn">Stop All Processes</button>
                     </div>
-                </div>
-                
-                <div class="lgn-actions lgn-justify-center">
-                    <button id="test-start" class="lgn-raised-button lgn-primary">Start Integrated Test</button>
-                    <button id="test-stop" class="lgn-stroked-button lgn-warn">Stop All Processes</button>
-                </div>
-            </section>
+                </section>
 
-            <!-- Performance Metrics Section -->
-            <section class="dashboard-section">
-                <h2>Performance Metrics</h2>
+                <!-- Performance Metrics Section -->
+                <section class="dashboard-section">
+                    <h2>Performance Metrics</h2>
                 
                 <!-- Metrics Tabs -->
                 <div class="metrics-tabs">
@@ -83,18 +96,6 @@
                         <div class="metric-card">
                             <div class="metric-value" id="throughput">0 Mbps</div>
                             <div class="metric-label">Throughput</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Real-time Charts -->
-                    <div class="charts-section">
-                        <div class="chart-container">
-                            <h4>Throughput Over Time</h4>
-                            <canvas id="throughputChart" width="400" height="200"></canvas>
-                        </div>
-                        <div class="chart-container">
-                            <h4>RTT and Packet Loss</h4>
-                            <canvas id="rttLossChart" width="400" height="200"></canvas>
                         </div>
                     </div>
                 </div>
@@ -210,6 +211,22 @@
                         <div class="comparison-chart-container">
                             <canvas id="protocolComparisonChart" width="600" height="300"></canvas>
                         </div>
+                    </div>
+                </div>
+                </section>
+            </div>
+
+            <!-- Real-time Charts Section -->
+            <section class="dashboard-section charts-section-fullwidth">
+                <h2>Performance Charts</h2>
+                <div class="charts-section">
+                    <div class="chart-container">
+                        <h4>Throughput Over Time</h4>
+                        <canvas id="throughputChart" width="400" height="200"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h4>RTT and Packet Loss</h4>
+                        <canvas id="rttLossChart" width="400" height="200"></canvas>
                     </div>
                 </div>
             </section>
@@ -622,8 +639,10 @@
     <footer>
         <div class="fill-space"></div>
         <div class="watermark">
-            <span class="powered">Powered by</span>
-            <span class="lgn-logo-watermark">QUIC Test Suite</span>
+            <a href="https://cloudbridge-research.ru/" target="_blank" rel="noopener noreferrer" class="watermark-link">
+                <span class="lgn-logo-watermark">Cloudbridge Research</span>
+                <img src="/static/pic/logo.png" alt="Cloudbridge Research" class="watermark-logo">
+            </a>
         </div>
     </footer>
 

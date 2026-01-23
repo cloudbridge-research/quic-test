@@ -17,8 +17,9 @@ RUN go mod download
 # Копирование исходного кода
 COPY . .
 
-# Сборка основного бинарника
-RUN go build -o quic-test ./
+# Сборка основного бинарника и dashboard
+RUN go build -o quic-test ./ && \
+    go build -o dashboard ./cmd/dashboard/
 
 # Этап 2: Runtime
 FROM alpine:3.20
@@ -33,8 +34,9 @@ RUN addgroup -g 1001 -S dashboard && \
 # Установка рабочей директории
 WORKDIR /app
 
-# Копирование собранного бинарника
+# Копирование собранных бинарников
 COPY --from=builder /app/quic-test ./
+COPY --from=builder /app/dashboard ./
 
 # Копирование веб-файлов
 COPY --from=builder /app/web ./web
@@ -64,5 +66,5 @@ LABEL org.opencontainers.image.source="https://github.com/cloudbridge-relay-inst
 LABEL org.opencontainers.image.licenses="Apache-2.0"
 LABEL org.opencontainers.image.vendor="Cloudbridge Research"
 
-# Команда по умолчанию - запуск в режиме dashboard
-CMD ["./quic-test", "-mode=dashboard"]
+# Команда по умолчанию - запуск dashboard
+CMD ["./dashboard", "-addr=:9990"]

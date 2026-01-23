@@ -54,7 +54,7 @@ services:
       context: .
       dockerfile: Dockerfile.dashboard
     container_name: 2gc-network-dashboard
-    command: ["./quic-test", "-mode=dashboard"]
+    command: ["./dashboard", "-addr=:9990"]
     ports:
       - "9990:9990"   # Веб-дашборд
     environment:
