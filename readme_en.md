@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img src="web/static/pic/logo.png" alt="CloudBridge Research" width="120" height="120">
+<img src="https://github.com/cloudbridge-research/quic-test/blob/main/web/static/pic/logo.png?raw=true" alt="CloudBridge Research" width="120" height="120">
 
 ## QUIC Test
 
