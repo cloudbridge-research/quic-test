@@ -1,0 +1,1419 @@
+/* Dashboard-specific styles using Zitadel design system */
+
+/* Remove container constraints and make adaptive */
+body {
+    font-family: var(--zitadel-font-family), "Lato", sans-serif;
+    background-color: var(--zitadel-color-background);
+    color: var(--zitadel-color-text);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+.content-container {
+    max-width: 100%;
+    padding: 1.5rem;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+/* Header styles */
+.lgn-header {
+    text-align: center;
+    padding: 2rem 1rem;
+    margin-bottom: 2rem;
+    background: rgba(var(--zitadel-color-primary-rgb), 0.25);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-radius: 0 0 16px 16px;
+    border: 1px solid rgba(var(--zitadel-color-primary-rgb), 0.4);
+    box-shadow: 0 8px 32px rgba(var(--zitadel-color-primary-rgb), 0.2),
+                inset 0 1px 0 rgba(var(--zitadel-color-primary-rgb), 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.lgn-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(var(--zitadel-color-primary-rgb), 0.15) 0%, rgba(var(--zitadel-color-primary-rgb), 0.08) 100%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.header-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    position: relative;
+    z-index: 1;
+}
+
+.header-logo {
+    height: 48px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    transition: transform 0.3s ease;
+}
+
+.header-logo:hover {
+    transform: scale(1.05);
+}
+
+.lgn-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #abb8ea;
+    margin: 0;
+    padding: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    letter-spacing: -0.02em;
+    position: relative;
+    z-index: 1;
+}
+
+.lgn-header h2 {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: #abb8ea;
+    margin: 0;
+    padding: 0;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    letter-spacing: 0.02em;
+    position: relative;
+    z-index: 1;
+    opacity: 0.95;
+}
+
+/* Dashboard page header */
+.lgn-head {
+    margin-bottom: 2rem;
+    text-align: center;
+    padding: 1.5rem 0;
+}
+
+.lgn-head h1 {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: var(--zitadel-color-text);
+    margin: 0 0 0.5rem 0;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--zitadel-color-primary) 0%, var(--zitadel-color-primary-600) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.lgn-head p {
+    font-size: 1.125rem;
+    color: var(--zitadel-color-label);
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* Dashboard sections */
+.dashboard-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem 2rem;
+    background: var(--zitadel-color-white);
+    border: 1px solid var(--zitadel-color-divider);
+    border-radius: 8px;
+    box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.12), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 2px 1px -1px rgba(0, 0, 0, 0.2);
+    transition: box-shadow 0.2s ease;
+}
+
+.dashboard-top-row > .dashboard-section {
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard-top-row > .dashboard-section > *:last-child {
+    margin-top: auto;
+}
+
+.dashboard-section:hover {
+    box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0, 0, 0, 0.12);
+}
+
+.dashboard-section h2 {
+    color: var(--zitadel-color-text);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 1.5rem 0;
+    border-bottom: 1px solid var(--zitadel-color-divider);
+    padding-bottom: 0.75rem;
+}
+
+.dashboard-top-row {
+    display: grid;
+    grid-template-columns: minmax(320px, 1fr) minmax(320px, 1fr);
+    gap: 1.5rem;
+    align-items: stretch;
+}
+
+.dashboard-top-row > .dashboard-section {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* Ensure images and media are responsive */
+img, video, canvas {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Prevent horizontal scroll */
+* {
+    box-sizing: border-box;
+}
+
+/* Educational Presets */
+.preset-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.preset-card {
+    background: var(--zitadel-color-white);
+    border: 1px solid var(--zitadel-color-divider);
+    border-radius: 6px;
+    padding: 1.5rem;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.preset-card:hover {
+    background: var(--zitadel-color-card-hover);
+    box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0, 0, 0, 0.12);
+}
+
+.preset-card h3 {
+    color: var(--zitadel-color-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+}
+
+.preset-card p {
+    color: var(--zitadel-color-label);
+    font-size: 0.875rem;
+    margin: 0 0 1rem 0;
+    line-height: 1.4;
+}
+
+.preset-btn {
+    width: 100%;
+    margin-top: auto;
+}
+
+/* Configuration Tabs */
+.config-tabs, .metrics-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--zitadel-color-divider);
+    margin-bottom: 1.5rem;
+    overflow-x: auto;
+}
+
+.tab-button {
+    background: none;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--zitadel-color-label);
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.tab-button:hover {
+    color: var(--zitadel-color-text);
+    background: var(--zitadel-color-account-selector-hover);
+}
+
+.tab-button.active {
+    color: var(--zitadel-color-primary);
+    border-bottom-color: var(--zitadel-color-primary);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Form enhancements */
+.checkbox-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.field-hint {
+    font-size: 0.75rem;
+    color: var(--zitadel-color-label);
+    margin-top: 0.25rem;
+    font-style: italic;
+}
+
+/* Process management */
+.process-control-group {
+    flex: 1;
+    min-width: 280px;
+    margin: 0.5rem;
+}
+
+.process-status-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.process-status-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid var(--zitadel-color-divider);
+    border-radius: 6px;
+    background: var(--zitadel-color-white);
+    gap: 0.75rem;
+}
+
+.process-actions-row {
+    flex-shrink: 0;
+}
+
+.process-actions-row .lgn-actions {
+    justify-content: flex-start;
+}
+
+.process-actions-row .lgn-raised-button,
+.process-actions-row .lgn-stroked-button {
+    min-width: 120px;
+}
+
+.process-label {
+    font-weight: 600;
+    color: var(--zitadel-color-text);
+    font-size: 0.875rem;
+}
+
+.status-indicator {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.status-indicator.status-running {
+    background-color: var(--zitadel-color-state-success-background);
+    color: var(--zitadel-color-state-success-font);
+}
+
+.status-indicator.status-stopped {
+    background-color: var(--zitadel-color-state-warn-background);
+    color: var(--zitadel-color-state-warn-font);
+}
+
+/* Button styling following Zitadel patterns */
+/* Note: Zitadel buttons use transparent background by default */
+/* .lgn-button with .lgn-primary sets text color, not background */
+/* .lgn-raised-button.lgn-primary sets background color */
+
+/* Success button - use raised button style for filled buttons */
+.lgn-raised-button.lgn-success {
+    background-color: var(--zitadel-color-success);
+    color: var(--zitadel-color-white);
+}
+
+/* Warn button - use raised button style for filled buttons */
+.lgn-raised-button.lgn-warn {
+    background-color: var(--zitadel-color-warn);
+    color: var(--zitadel-color-white);
+}
+
+/* Regular button with success color text */
+.lgn-button.lgn-success {
+    color: var(--zitadel-color-success);
+}
+
+/* Regular button with warn color text */
+.lgn-button.lgn-warn {
+    color: var(--zitadel-color-warn);
+}
+
+/* Stroked button with success color */
+.lgn-stroked-button.lgn-success {
+    color: var(--zitadel-color-success);
+    border-color: var(--zitadel-color-success);
+}
+
+/* Stroked button with warn color */
+.lgn-stroked-button.lgn-warn {
+    color: var(--zitadel-color-warn);
+    border-color: var(--zitadel-color-warn);
+}
+
+/* Metrics grid - adaptive layout */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.metric-card {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    border: 1px solid var(--zitadel-color-divider);
+    border-radius: 6px;
+    background: var(--zitadel-color-white);
+    transition: all 0.2s ease;
+}
+
+.metric-card:hover {
+    background: var(--zitadel-color-card-hover);
+    box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0, 0, 0, 0.12);
+}
+
+.metric-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--zitadel-color-primary);
+    margin-bottom: 0.25rem;
+    line-height: 1.2;
+}
+
+.metric-label {
+    font-size: 0.75rem;
+    color: var(--zitadel-color-label);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+}
+
+/* Educational Insights */
+.educational-insights {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin: 1rem 0;
+}
+
+.insight-card {
+    background: var(--zitadel-color-white);
+    border: 1px solid var(--zitadel-color-divider);
+    border-radius: 6px;
+    padding: 1.5rem;
+}
+
+.insight-card h4 {
+    color: var(--zitadel-color-text);
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+}
+
+.quality-indicator {
+    margin: 1rem 0;
+}
+
+.quality-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--zitadel-color-grey-200);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.quality-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--zitadel-color-warn), var(--zitadel-color-success));
+    transition: width 0.3s ease;
+}
+
+.quality-text {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--zitadel-color-text);
+}
+
+.efficiency-meter {
+    text-align: center;
+    margin: 1rem 0;
+}
+
+.meter-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--zitadel-color-primary);
+}
+
+.meter-label {
+    font-size: 0.875rem;
+    color: var(--zitadel-color-label);
+}
+
+.overhead-comparison {
+    margin: 1rem 0;
+}
+
+.overhead-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.protocol-name {
+    width: 80px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.overhead-bar {
+    flex: 1;
+    height: 20px;
+    background: var(--zitadel-color-grey-200);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 0 1rem;
+}
+
+.overhead-fill {
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.overhead-fill.quic {
+    background: var(--zitadel-color-success);
+}
+
+.overhead-fill.tcp {
+    background: var(--zitadel-color-warn);
+}
+
+.overhead-value {
+    width: 40px;
+    text-align: right;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.insight-explanation {
+    font-size: 0.75rem;
+    color: var(--zitadel-color-label);
+    margin: 0.5rem 0 0 0;
+    font-style: italic;
+}
+
+/* Educational Scenarios */
+.scenarios-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+    margin: 1rem 0;
+}
+
+.scenario-card {
+    background: var(--zitadel-color-white);
+    border: 1px solid var(--zitadel-color-divider);
+    border-radius: 6px;
+    padding: 1.5rem;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+}
+
+.scenario-card:hover {
+    background: var(--zitadel-color-card-hover);
+    box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 5px 8px 0px rgba(0, 0, 0, 0.14), 0px 1px 14px 0px rgba(0, 0, 0, 0.12);
+}
+
+.scenario-icon {
+    font-size: 1.5rem;
+    text-align: center;
+    margin-bottom: 1rem;
+    font-weight: bold;
+    color: var(--zitadel-color-primary);
+    background: rgba(var(--zitadel-color-primary-rgb), 0.1);
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem auto;
+    border: 2px solid var(--zitadel-color-primary);
+}
+
+.scenario-card h3 {
+    color: var(--zitadel-color-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 0.75rem 0;
+    text-align: center;
+}
+
+.scenario-card p {
+    color: var(--zitadel-color-text);
+    font-size: 0.875rem;
+    line-height: 1.4;
+    margin: 0 0 1rem 0;
+    flex-grow: 1;
+}
+
+.scenario-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.stat {
+    font-size: 0.75rem;
+    color: var(--zitadel-color-label);
+    background: var(--zitadel-color-grey-100);
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+}
+
+.scenario-btn {
+    width: 100%;
+    margin-top: auto;
+}
+
+/* Configuration form - adaptive layout */
+.config-form {
+    margin: 1rem 0;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Override Zitadel input styles for better integration */
+.lgn-input, .lgn-select {
+    background-color: var(--zitadel-color-input-background);
+    border-color: var(--zitadel-color-input-border);
+    color: var(--zitadel-color-text);
+}
+
+.lgn-input:hover, .lgn-select:hover {
+    border-color: var(--zitadel-color-input-border-hover);
+}
+
+.lgn-input:focus, .lgn-select:focus {
+    border-color: var(--zitadel-color-input-border-active);
+    outline: none;
+}
+
+.lgn-input::placeholder {
+    color: var(--zitadel-color-input-placeholder);
+}
+
+/* Logs enhancements */
+.logs-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.log-filters {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.log-filters select {
+    min-width: 120px;
+}
+
+/* Logs terminal */
+.logs-terminal {
+    background-color: var(--zitadel-color-grey-900);
+    color: var(--zitadel-color-white);
+    border-radius: 6px;
+    padding: 1rem;
+    font-family: 'Courier New', 'Monaco', monospace;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    height: 200px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    border: 1px solid var(--zitadel-color-divider);
+}
+
+/* Responsive design - mobile first */
+
+/* Extra small screens */
+@media (max-width: 480px) {
+    .content-container {
+        padding: 0.75rem;
+    }
+    
+    .dashboard-section {
+        padding: 0.75rem 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .dashboard-section h2 {
+        font-size: 1rem;
+    }
+    
+    .process-actions-row .lgn-raised-button,
+    .process-actions-row .lgn-stroked-button {
+        min-width: 80px;
+        font-size: 0.875rem;
+        padding: 0 12px;
+    }
+    
+    .lgn-header {
+        padding: 1.5rem 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .lgn-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .lgn-head {
+        padding: 1rem 0;
+        margin-bottom: 1.5rem;
+    }
+    
+    .lgn-head h1 {
+        font-size: 1.75rem;
+    }
+    
+    .lgn-head p {
+        font-size: 1rem;
+    }
+}
+
+/* Small screens */
+@media (max-width: 768px) {
+    .content-container {
+        padding: 1rem;
+    }
+    
+    .dashboard-section {
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .dashboard-section h2 {
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .charts-section-fullwidth {
+        padding: 1rem;
+    }
+
+    .lgn-header {
+        padding: 1.5rem 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .header-content {
+        gap: 0.5rem;
+    }
+    
+    .header-logo {
+        height: 36px;
+    }
+    
+    .lgn-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .lgn-header h2 {
+        font-size: 1rem;
+    }
+    
+    .lgn-head {
+        padding: 1rem 0;
+        margin-bottom: 1.5rem;
+    }
+    
+    .lgn-head h1 {
+        font-size: 1.75rem;
+    }
+    
+    .lgn-head p {
+        font-size: 1rem;
+    }
+    
+    .dashboard-top-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .lgn-row {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .process-control-group {
+        margin: 0.25rem 0;
+        min-width: auto;
+        width: 100%;
+    }
+    
+    .process-status-container {
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: stretch;
+    }
+    
+    .process-status-row {
+        width: 100%;
+    }
+    
+    .process-actions-row {
+        width: 100%;
+    }
+    
+    .process-actions-row .lgn-actions {
+        flex-wrap: wrap;
+        width: 100%;
+    }
+    
+    .process-actions-row .lgn-raised-button,
+    .process-actions-row .lgn-stroked-button {
+        flex: 1;
+        min-width: 100px;
+    }
+    
+    .lgn-actions {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .metrics-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 0.75rem;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .metric-card {
+        padding: 1rem 0.75rem;
+    }
+    
+    .metric-value {
+        font-size: 1.5rem;
+    }
+    
+    .preset-grid, .scenarios-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .config-tabs, .metrics-tabs {
+        overflow-x: auto;
+    }
+    
+    .tab-button {
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+    }
+    
+    .logs-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .log-filters {
+        justify-content: center;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .content-container {
+        padding: 1.5rem 2rem;
+    }
+    
+    .dashboard-top-row {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .form-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .preset-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .scenarios-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .process-status-container {
+        gap: 1rem;
+    }
+    
+    .process-actions-row .lgn-raised-button,
+    .process-actions-row .lgn-stroked-button {
+        min-width: 110px;
+    }
+}
+
+@media (min-width: 1025px) {
+    .content-container {
+        max-width: 1400px;
+        padding: 2rem 2.5rem;
+    }
+    
+    .lgn-header {
+        padding: 2.5rem 1rem;
+    }
+    
+    .header-logo {
+        height: 120px;
+    }
+    
+    .lgn-header h1 {
+        font-size: 2.5rem;
+    }
+    
+    .lgn-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .lgn-head h1 {
+        font-size: 2.5rem;
+    }
+    
+    .lgn-head p {
+        font-size: 1.25rem;
+    }
+    
+    .dashboard-section {
+        padding: 2rem 2.5rem;
+    }
+    
+    .metrics-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .form-row {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .scenarios-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Large screens */
+@media (min-width: 1400px) {
+    .dashboard-section {
+        padding: 2.5rem 3rem;
+    }
+}
+
+/* Dark theme support */
+.lgn-dark-theme .metric-card,
+.lgn-dark-theme .preset-card,
+.lgn-dark-theme .scenario-card,
+.lgn-dark-theme .insight-card {
+    background: var(--zitadel-color-background-600);
+    border-color: var(--zitadel-color-divider);
+}
+
+.lgn-dark-theme .process-status-row {
+    background: var(--zitadel-color-background-600);
+    border-color: var(--zitadel-color-divider);
+}
+
+.lgn-dark-theme .logs-terminal {
+    background-color: var(--zitadel-color-background-800);
+    border-color: var(--zitadel-color-divider);
+}
+
+/* Real-time Charts */
+.charts-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+/* Full-width charts section */
+.charts-section-fullwidth {
+    width: 100vw;
+    max-width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    padding: 1.5rem 2rem;
+    margin-bottom: 2rem;
+    background: transparent;
+    border: none;
+    border-top: 1px solid var(--zitadel-color-divider);
+    border-bottom: 1px solid var(--zitadel-color-divider);
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.charts-section-fullwidth:hover {
+    box-shadow: none;
+}
+
+.charts-section-fullwidth .charts-section {
+    max-width: 1200px;
+    margin: 1.5rem auto;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 3rem;
+}
+
+.charts-section-fullwidth .chart-container {
+    width: 100%;
+    height: 350px;
+    background: transparent;
+    border: none;
+}
+
+.chart-container {
+    background: var(--zitadel-color-white);
+    border: 1px solid var(--zitadel-color-divider);
+    border-radius: 6px;
+    padding: 1.5rem;
+    height: 300px;
+}
+
+.chart-container h4 {
+    color: var(--zitadel-color-text);
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+    text-align: center;
+}
+
+.chart-container canvas {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Protocol Comparison Section */
+.protocol-comparison-section {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: var(--zitadel-color-white);
+    border: 1px solid var(--zitadel-color-divider);
+    border-radius: 6px;
+}
+
+.protocol-comparison-section h4 {
+    color: var(--zitadel-color-text);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 1.5rem 0;
+    text-align: center;
+}
+
+.comparison-chart-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+}
+
+/* Scenario Progress */
+.scenario-progress-container {
+    background: var(--zitadel-color-white);
+    border: 1px solid var(--zitadel-color-divider);
+    border-radius: 6px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.progress-header h3 {
+    color: var(--zitadel-color-primary);
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.progress-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.progress-bar-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.progress-bar {
+    flex: 1;
+    height: 8px;
+    background: var(--zitadel-color-grey-200);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--zitadel-color-primary), var(--zitadel-color-success));
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--zitadel-color-text);
+    min-width: 100px;
+}
+
+.scenario-steps {
+    margin-bottom: 1.5rem;
+}
+
+.steps-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.step-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    border: 1px solid var(--zitadel-color-divider);
+    border-radius: 6px;
+    background: var(--zitadel-color-white);
+    transition: all 0.2s ease;
+}
+
+.step-item.active {
+    background: rgba(var(--zitadel-color-primary-rgb), 0.1);
+    border-color: var(--zitadel-color-primary);
+}
+
+.step-item.completed {
+    background: var(--zitadel-color-state-success-background);
+    border-color: var(--zitadel-color-success);
+}
+
+.step-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--zitadel-color-grey-300);
+    color: var(--zitadel-color-white);
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.75rem;
+}
+
+.step-item.active .step-number {
+    background: var(--zitadel-color-primary);
+}
+
+.step-item.completed .step-number {
+    background: var(--zitadel-color-success);
+}
+
+.step-content {
+    flex: 1;
+}
+
+.step-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--zitadel-color-text);
+    margin: 0 0 0.25rem 0;
+}
+
+.step-description {
+    font-size: 0.75rem;
+    color: var(--zitadel-color-label);
+    margin: 0;
+}
+
+.scenario-insights {
+    background: var(--zitadel-color-grey-50);
+    border-radius: 6px;
+    padding: 1rem;
+}
+
+.scenario-insights h4 {
+    color: var(--zitadel-color-text);
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.75rem 0;
+}
+
+.insights-content {
+    font-size: 0.875rem;
+    color: var(--zitadel-color-text);
+    line-height: 1.4;
+}
+
+/* Export and Reporting */
+.export-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin: 1rem 0;
+}
+
+.export-group {
+    background: var(--zitadel-color-white);
+    border: 1px solid var(--zitadel-color-divider);
+    border-radius: 6px;
+    padding: 1.5rem;
+}
+
+.export-group h4 {
+    color: var(--zitadel-color-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+}
+
+.export-group p {
+    color: var(--zitadel-color-label);
+    font-size: 0.875rem;
+    margin: 0 0 1rem 0;
+    line-height: 1.4;
+}
+
+.export-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1rem 0;
+}
+
+.report-options {
+    margin: 1rem 0;
+}
+
+.report-options .lgn-checkbox {
+    margin-bottom: 0.5rem;
+}
+
+.capture-status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    background: var(--zitadel-color-grey-50);
+    border-radius: 4px;
+    margin-top: 0.75rem;
+}
+
+.capture-status span {
+    font-size: 0.75rem;
+    color: var(--zitadel-color-label);
+}
+
+/* Responsive adjustments for new components */
+@media (max-width: 768px) {
+    .charts-section {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .charts-section-fullwidth {
+        padding: 1rem;
+    }
+    
+    .charts-section-fullwidth .charts-section {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        margin: 1rem 0;
+    }
+    
+    .charts-section-fullwidth .chart-container {
+        height: 250px;
+    }
+    
+    .chart-container {
+        padding: 1rem;
+    }
+    
+    .progress-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+    
+    .progress-controls {
+        justify-content: center;
+    }
+    
+    .steps-list {
+        grid-template-columns: 1fr;
+    }
+    
+    .export-controls {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .export-actions {
+        justify-content: center;
+    }
+}
+
+@media (min-width: 1025px) {
+    .charts-section {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .export-controls {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Dark theme support for new components */
+.lgn-dark-theme .dashboard-section {
+    background: var(--zitadel-color-background-600);
+    border-color: var(--zitadel-color-divider);
+}
+
+.lgn-dark-theme .chart-container,
+.lgn-dark-theme .protocol-comparison-section,
+.lgn-dark-theme .scenario-progress-container,
+.lgn-dark-theme .export-group {
+    background: var(--zitadel-color-background-600);
+    border-color: var(--zitadel-color-divider);
+}
+
+.lgn-dark-theme .charts-section-fullwidth {
+    background: transparent;
+    border-color: var(--zitadel-color-divider);
+}
+
+.lgn-dark-theme .charts-section-fullwidth .chart-container {
+    background: transparent;
+    border: none;
+}
+
+.lgn-dark-theme .step-item {
+    background: var(--zitadel-color-background-700);
+    border-color: var(--zitadel-color-divider);
+}
+
+.lgn-dark-theme .scenario-insights {
+    background: var(--zitadel-color-background-700);
+}
+
+.lgn-dark-theme .capture-status {
+    background: var(--zitadel-color-background-700);
+}
+
+/* Dark theme for headers */
+.lgn-dark-theme .lgn-header {
+    background: rgba(var(--zitadel-color-primary-rgb), 0.3);
+    border-color: rgba(var(--zitadel-color-primary-rgb), 0.5);
+    box-shadow: 0 8px 32px rgba(var(--zitadel-color-primary-rgb), 0.3),
+                inset 0 1px 0 rgba(var(--zitadel-color-primary-rgb), 0.4);
+}
+
+.lgn-dark-theme .lgn-head h1 {
+    background: linear-gradient(135deg, var(--zitadel-color-primary-400) 0%, var(--zitadel-color-primary-600) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Watermark link and logo styles */
+.watermark-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    color: inherit;
+    transition: opacity 0.2s ease;
+}
+
+.watermark-link:hover {
+    opacity: 0.8;
+}
+
+.watermark-logo {
+    height: 32px;
+    width: auto;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+.watermark-logo:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15), 
+                0 2px 4px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+/* Dark theme adjustments for logo */
+.lgn-dark-theme .watermark-logo {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.lgn-dark-theme .watermark-logo:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}

@@ -51,14 +51,13 @@ regression-results/
 test-qlog/
 qlog/
 
-# Monitoring data
-prometheus/
-grafana/
+# Monitoring data (exclude runtime data, keep configs)
+prometheus/data/
+grafana/data/
 qvis/
 
-# Static files
-static/
-img/
+# Static files (exclude generated, keep source)
+# Note: web/static/ should be included for dashboard assets
 
 # Docker volumes
 docker-data/

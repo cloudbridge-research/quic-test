@@ -1,0 +1,30 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'quic-server'
+    static_configs:
+      - targets: ['quic-server:2113']
+    scrape_interval: 5s
+    metrics_path: /metrics
+
+  - job_name: 'quic-client'
+    static_configs:
+      - targets: ['quic-client:2112']
+    scrape_interval: 5s
+    metrics_path: /metrics
+
+  - job_name: 'dashboard'
+    static_configs:
+      - targets: ['dashboard:9990']
+    scrape_interval: 10s
+    metrics_path: /metrics
