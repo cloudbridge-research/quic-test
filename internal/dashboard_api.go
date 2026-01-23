@@ -3,6 +3,7 @@ package internal
 import (
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
 	"sort"
 	"sync"
@@ -41,16 +42,52 @@ func (api *DashboardAPI) StatusHandler(w http.ResponseWriter, r *http.Request) {
 	api.state.mu.RLock()
 	defer api.state.mu.RUnlock()
 	
+	// Проверяем реальный статус сервера и клиента
+	serverRunning := api.checkServerStatus()
+	clientRunning := api.checkClientStatus()
+	
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"server": map[string]interface{}{
-			"running": api.state.ServerRunning,
+			"running": serverRunning,
 		},
 		"client": map[string]interface{}{
-			"running": api.state.ClientRunning,
+			"running": clientRunning,
 		},
-		"last_update": api.state.LastUpdate,
+		"last_update": time.Now(),
 	})
+}
+
+// checkClientStatus проверяет, работает ли QUIC клиент
+func (api *DashboardAPI) checkClientStatus() bool {
+	// Проверяем доступность Prometheus метрик клиента
+	// QUIC клиент экспортирует метрики на порту 2112
+	addresses := []string{"2gc-network-client:2112", "localhost:2112"}
+	
+	for _, addr := range addresses {
+		conn, err := net.DialTimeout("tcp", addr, 1*time.Second)
+		if err == nil {
+			conn.Close()
+			return true
+		}
+	}
+	return false
+}
+
+// checkServerStatus проверяет, работает ли QUIC сервер
+func (api *DashboardAPI) checkServerStatus() bool {
+	// Проверяем доступность Prometheus метрик сервера
+	// QUIC сервер экспортирует метрики на порту 2113
+	addresses := []string{"2gc-network-server:2113", "localhost:2113"}
+	
+	for _, addr := range addresses {
+		conn, err := net.DialTimeout("tcp", addr, 1*time.Second)
+		if err == nil {
+			conn.Close()
+			return true
+		}
+	}
+	return false
 }
 
 // RunTestHandler запускает тест
@@ -66,19 +103,32 @@ func (api *DashboardAPI) RunTestHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	
+	// Проверяем, что сервер доступен
+	if !api.checkServerStatus() {
+		http.Error(w, "QUIC server is not running. Please start the server first.", http.StatusServiceUnavailable)
+		return
+	}
+	
+	// Проверяем, не запущен ли уже клиент
+	if api.checkClientStatus() {
+		http.Error(w, "QUIC client is already running", http.StatusConflict)
+		return
+	}
+	
 	api.state.mu.Lock()
 	api.state.TestConfig = config
-	api.state.ClientRunning = true
 	api.state.LastUpdate = time.Now()
 	api.state.mu.Unlock()
 	
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"status":  "started",
-		"message": "Test started",
+		"status":  "info",
+		"message": "To start a test, please run: docker compose up quic-client",
+		"note":    "This dashboard monitors existing tests, it doesn't start new containers",
 		"config":  config,
 	})
 }
+
 
 // StopTestHandler останавливает тест
 func (api *DashboardAPI) StopTestHandler(w http.ResponseWriter, r *http.Request) {
@@ -87,17 +137,21 @@ func (api *DashboardAPI) StopTestHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	
-	api.state.mu.Lock()
-	api.state.ClientRunning = false
-	api.state.ServerRunning = false
-	api.state.LastUpdate = time.Now()
-	api.state.mu.Unlock()
+	clientRunning := api.checkClientStatus()
 	
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"status":  "stopped",
-		"message": "Test stopped",
-	})
+	if clientRunning {
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"status":  "info",
+			"message": "To stop the client, please run: docker compose stop quic-client",
+			"note":    "This dashboard monitors tests, it doesn't control containers directly",
+		})
+	} else {
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"status":  "info",
+			"message": "No QUIC client is currently running",
+		})
+	}
 }
 
 // PresetHandler управляет пресетами
@@ -199,11 +253,31 @@ func (api *DashboardAPI) ReportHandler(w http.ResponseWriter, r *http.Request) {
 
 // MetricsHandler возвращает метрики
 func (api *DashboardAPI) MetricsHandler(w http.ResponseWriter, r *http.Request) {
-	api.state.mu.RLock()
-	defer api.state.mu.RUnlock()
-	
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(api.state.Metrics)
+	
+	// Пытаемся получить реальные метрики от клиента
+	metrics := api.getRealMetrics()
+	
+	json.NewEncoder(w).Encode(metrics)
+}
+
+// getRealMetrics получает реальные метрики от Prometheus endpoints
+func (api *DashboardAPI) getRealMetrics() map[string]interface{} {
+	metrics := make(map[string]interface{})
+	
+	// Если клиент не запущен, возвращаем пустые метрики
+	if !api.checkClientStatus() {
+		return metrics
+	}
+	
+	// Здесь можно добавить парсинг реальных Prometheus метрик
+	// Пока возвращаем базовую информацию
+	metrics["status"] = "Client is running"
+	metrics["note"] = "Real-time metrics parsing from Prometheus endpoints can be implemented here"
+	metrics["client_endpoint"] = "http://2gc-network-client:2112/metrics"
+	metrics["server_endpoint"] = "http://2gc-network-server:2113/metrics"
+	
+	return metrics
 }
 
 // UpdateMetrics обновляет метрики

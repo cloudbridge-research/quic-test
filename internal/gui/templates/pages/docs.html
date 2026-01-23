@@ -1,0 +1,165 @@
+{{define "content"}}
+<div class="docs-layout">
+    <aside class="docs-sidebar">
+        <nav class="docs-nav">
+            <h3>Documentation</h3>
+            <ul>
+                <li><a href="#getting-started">Getting Started</a></li>
+                <li><a href="#test-configuration">Test Configuration</a></li>
+                <li><a href="#network-emulation">Network Emulation</a></li>
+                <li><a href="#congestion-control">Congestion Control</a></li>
+                <li><a href="#advanced-features">Advanced Features</a></li>
+                <li><a href="#metrics-analysis">Metrics Analysis</a></li>
+                <li><a href="#troubleshooting">Troubleshooting</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <div class="docs-content">
+        <section id="getting-started">
+            <h2>Getting Started</h2>
+            <p>The QUIC Test Suite is a comprehensive platform for testing and analyzing QUIC protocol performance. This guide will help you get started with creating and running your first tests.</p>
+            
+            <h3>Quick Start</h3>
+            <ol>
+                <li>Navigate to the <a href="/test/new">New Test</a> page</li>
+                <li>Select a test mode (Integrated, Client, or Server)</li>
+                <li>Configure basic parameters (duration, connections, streams)</li>
+                <li>Click "Start Test" to begin</li>
+                <li>Monitor results in real-time on the test details page</li>
+            </ol>
+        </section>
+
+        <section id="test-configuration">
+            <h2>Test Configuration</h2>
+            
+            <h3>Test Modes</h3>
+            <ul>
+                <li><strong>Integrated:</strong> Runs both server and client for complete testing</li>
+                <li><strong>Client:</strong> Connects to an external QUIC server</li>
+                <li><strong>Server:</strong> Runs a QUIC server waiting for connections</li>
+            </ul>
+            
+            <h3>Basic Parameters</h3>
+            <ul>
+                <li><strong>Duration:</strong> How long to run the test (e.g., 60s, 5m, 1h)</li>
+                <li><strong>Connections:</strong> Number of parallel QUIC connections</li>
+                <li><strong>Streams:</strong> Number of streams per connection</li>
+                <li><strong>Packet Rate:</strong> Packets per second to send</li>
+                <li><strong>Packet Size:</strong> Size of each packet in bytes</li>
+            </ul>
+        </section>
+
+        <section id="network-emulation">
+            <h2>Network Emulation</h2>
+            <p>Simulate various network conditions to test QUIC performance under different scenarios.</p>
+            
+            <h3>Available Parameters</h3>
+            <ul>
+                <li><strong>Additional Latency:</strong> Add artificial delay to packets</li>
+                <li><strong>Packet Loss Rate:</strong> Percentage of packets to drop (0.01 = 1%)</li>
+                <li><strong>Packet Duplication:</strong> Percentage of packets to duplicate</li>
+            </ul>
+            
+            <h3>Common Network Profiles</h3>
+            <ul>
+                <li><strong>Fiber:</strong> Low latency (5ms), high bandwidth, minimal loss</li>
+                <li><strong>Mobile:</strong> Medium latency (50ms), moderate bandwidth, some loss</li>
+                <li><strong>Satellite:</strong> High latency (600ms), limited bandwidth, higher loss</li>
+                <li><strong>WiFi:</strong> Variable latency (20ms), good bandwidth, occasional loss</li>
+            </ul>
+        </section>
+
+        <section id="congestion-control">
+            <h2>Congestion Control</h2>
+            <p>Test different congestion control algorithms to understand their behavior and performance characteristics.</p>
+            
+            <h3>Available Algorithms</h3>
+            <ul>
+                <li><strong>CUBIC:</strong> Traditional TCP-like algorithm</li>
+                <li><strong>BBR:</strong> Bottleneck Bandwidth and RTT algorithm</li>
+                <li><strong>BBRv2:</strong> Improved version with better fairness</li>
+                <li><strong>BBRv3:</strong> Latest experimental version with dual-scale bandwidth estimation</li>
+                <li><strong>NewReno:</strong> Classic TCP NewReno algorithm</li>
+            </ul>
+            
+            <h3>BBRv3 Features</h3>
+            <ul>
+                <li>Dual-scale bandwidth model (fast/slow)</li>
+                <li>2% loss threshold</li>
+                <li>Adaptive pacing gains</li>
+                <li>Improved bufferbloat handling</li>
+            </ul>
+        </section>
+
+        <section id="advanced-features">
+            <h2>Advanced Features</h2>
+            
+            <h3>Forward Error Correction (FEC)</h3>
+            <p>Enable FEC to improve performance in lossy networks by adding redundant data that can recover lost packets.</p>
+            <ul>
+                <li>Configurable redundancy rate (5-20%)</li>
+                <li>SIMD-optimized implementation for high performance</li>
+                <li>Automatic fallback to software implementation</li>
+            </ul>
+            
+            <h3>Post-Quantum Cryptography Simulation</h3>
+            <p>Test the impact of post-quantum cryptographic algorithms on QUIC performance.</p>
+            <ul>
+                <li>ML-KEM-512/768 key encapsulation</li>
+                <li>Dilithium-2 digital signatures</li>
+                <li>Hybrid classical/post-quantum modes</li>
+            </ul>
+            
+            <h3>Prometheus Metrics</h3>
+            <p>Export detailed metrics to Prometheus for monitoring and analysis.</p>
+            <ul>
+                <li>Real-time performance metrics</li>
+                <li>HDR histogram data for accurate percentiles</li>
+                <li>Integration with Grafana dashboards</li>
+            </ul>
+        </section>
+
+        <section id="metrics-analysis">
+            <h2>Metrics Analysis</h2>
+            
+            <h3>Key Metrics</h3>
+            <ul>
+                <li><strong>Latency:</strong> Round-trip time for packets</li>
+                <li><strong>Throughput:</strong> Data transfer rate</li>
+                <li><strong>Packet Loss:</strong> Percentage of lost packets</li>
+                <li><strong>Jitter:</strong> Variation in latency</li>
+                <li><strong>Retransmissions:</strong> Number of packet retransmissions</li>
+            </ul>
+            
+            <h3>Understanding Results</h3>
+            <ul>
+                <li>Lower latency and jitter indicate better responsiveness</li>
+                <li>Higher throughput shows better bandwidth utilization</li>
+                <li>Lower packet loss and retransmissions indicate better reliability</li>
+                <li>Compare results across different configurations to identify optimal settings</li>
+            </ul>
+        </section>
+
+        <section id="troubleshooting">
+            <h2>Troubleshooting</h2>
+            
+            <h3>Common Issues</h3>
+            <ul>
+                <li><strong>Test fails to start:</strong> Check server address and port availability</li>
+                <li><strong>No metrics displayed:</strong> Ensure test is running and metrics are enabled</li>
+                <li><strong>High error rates:</strong> Check network configuration and firewall settings</li>
+                <li><strong>Poor performance:</strong> Verify system resources and network capacity</li>
+            </ul>
+            
+            <h3>Getting Help</h3>
+            <ul>
+                <li>Check test logs for detailed error messages</li>
+                <li>Review configuration parameters for correctness</li>
+                <li>Consult the API documentation for programmatic access</li>
+                <li>Use the integrated test mode for initial testing</li>
+            </ul>
+        </section>
+    </div>
+</div>
+{{end}}

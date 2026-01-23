@@ -1,7 +1,7 @@
 # 2GC Network Protocol Suite - Server Dockerfile
 # Оптимизированный образ для QUIC сервера
 
-FROM golang:1.25.1-alpine AS builder
+FROM golang:alpine AS builder
 
 # Установка зависимостей
 RUN apk add --no-cache git make
@@ -16,8 +16,8 @@ RUN go mod download
 # Копирование исходного кода
 COPY . .
 
-# Сборка только сервера
-RUN make build-server
+# Сборка основного бинарника
+RUN go build -o quic-test ./
 
 # Runtime образ
 FROM alpine:3.20
@@ -32,9 +32,9 @@ RUN addgroup -g 1001 -S quic && \
 # Установка рабочей директории
 WORKDIR /app
 
-# Копирование собранного сервера
-COPY --from=builder /app/build/quic-server ./
-COPY --from=builder /app/tag.txt ./
+# Копирование собранного бинарника
+COPY --from=builder /app/quic-test ./
+COPY --from=builder /app/certs ./certs
 
 # Установка прав доступа
 RUN chown -R quic:quic /app
@@ -61,4 +61,4 @@ LABEL org.opencontainers.image.licenses="Apache-2.0"
 LABEL org.opencontainers.image.vendor="2GC"
 
 # Команда по умолчанию - запуск сервера
-CMD ["./quic-server", "--addr=:9000", "--prometheus", "--pprof-addr=:6060"]
+CMD ["./quic-test", "-mode=server", "-addr=:9000", "-prometheus"]

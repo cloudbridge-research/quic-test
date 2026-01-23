@@ -1,0 +1,139 @@
+{{define "content"}}
+<div class="page-header">
+    <h2>Create New Test</h2>
+    <p>Configure and start a new QUIC performance test</p>
+</div>
+
+<form id="test-form" class="test-form">
+    <div class="form-section">
+        <h3>Basic Configuration</h3>
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="mode">Test Mode</label>
+                <select id="mode" name="mode" required>
+                    <option value="test" selected>Integrated (Server + Client)</option>
+                    <option value="client">Client Only</option>
+                    <option value="server">Server Only</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="duration">Duration</label>
+                <input type="text" id="duration" name="duration" value="60s" placeholder="e.g., 60s, 5m">
+            </div>
+            <div class="form-group">
+                <label for="connections">Connections</label>
+                <input type="number" id="connections" name="connections" value="2" min="1" max="100">
+            </div>
+            <div class="form-group">
+                <label for="streams">Streams per Connection</label>
+                <input type="number" id="streams" name="streams" value="4" min="1" max="100">
+            </div>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <h3>Network Configuration</h3>
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="server-addr">Server Address</label>
+                <input type="text" id="server-addr" name="addr" value="localhost:9000" placeholder="host:port">
+            </div>
+            <div class="form-group">
+                <label for="packet-size">Packet Size (bytes)</label>
+                <input type="number" id="packet-size" name="packet_size" value="1200" min="64" max="65535">
+            </div>
+            <div class="form-group">
+                <label for="rate">Packet Rate (pps)</label>
+                <input type="number" id="rate" name="rate" value="100" min="1" max="10000">
+            </div>
+            <div class="form-group">
+                <label for="congestion-control">Congestion Control</label>
+                <select id="congestion-control" name="congestion_control">
+                    <option value="">Default</option>
+                    <option value="cubic">CUBIC</option>
+                    <option value="bbr">BBR</option>
+                    <option value="bbrv2">BBRv2</option>
+                    <option value="bbrv3">BBRv3</option>
+                    <option value="reno">NewReno</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <h3>Network Emulation</h3>
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="emulate-latency">Additional Latency</label>
+                <input type="text" id="emulate-latency" name="emulate_latency" placeholder="e.g., 50ms">
+            </div>
+            <div class="form-group">
+                <label for="emulate-loss">Packet Loss Rate</label>
+                <input type="number" id="emulate-loss" name="emulate_loss" step="0.001" min="0" max="1" placeholder="0.01 = 1%">
+            </div>
+            <div class="form-group">
+                <label for="emulate-dup">Packet Duplication Rate</label>
+                <input type="number" id="emulate-dup" name="emulate_dup" step="0.001" min="0" max="1" placeholder="0.01 = 1%">
+            </div>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <h3>Advanced Options</h3>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="prometheus" name="prometheus">
+                    Enable Prometheus Metrics
+                </label>
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="fec-enabled" name="fec_enabled">
+                    Enable Forward Error Correction
+                </label>
+            </div>
+            <div class="form-group">
+                <label for="fec-redundancy">FEC Redundancy Rate</label>
+                <input type="number" id="fec-redundancy" name="fec_redundancy" step="0.01" min="0.05" max="0.20" value="0.10" placeholder="0.10 = 10%">
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="pqc-enabled" name="pqc_enabled">
+                    Enable Post-Quantum Crypto Simulation
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button type="button" id="load-preset" class="btn btn-secondary">Load Preset</button>
+        <button type="submit" class="btn btn-primary">Start Test</button>
+    </div>
+</form>
+
+<div id="preset-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Load Test Preset</h3>
+            <button type="button" class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="preset-categories">
+                <div class="preset-category">
+                    <h4>Network Presets</h4>
+                    <div id="network-presets"></div>
+                </div>
+                <div class="preset-category">
+                    <h4>Test Profiles</h4>
+                    <div id="test-profiles"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{end}}
+
+{{define "scripts"}}
+<script src="/static/js/new-test.js"></script>
+{{end}}

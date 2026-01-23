@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}} - QUIC Test Suite</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    {{block "head" .Data}}{{end}}
+</head>
+<body>
+    {{template "navbar" .}}
+    
+    <main class="container">
+        {{block "content" .Data}}{{end}}
+    </main>
+    
+    {{block "scripts" .Data}}{{end}}
+</body>
+</html>

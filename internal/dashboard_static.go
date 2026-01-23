@@ -1,7 +1,9 @@
 package internal
 
 import (
+	"fmt"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -27,7 +29,7 @@ func (sfs *StaticFileSystem) Open(name string) (http.File, error) {
 func ServeStatic(w http.ResponseWriter, r *http.Request) {
 	// Убираем префикс /static/ если он есть
 	path := strings.TrimPrefix(r.URL.Path, "/static/")
-	if path == "" {
+	if path == "" || path == "/" {
 		path = "index.html"
 	}
 	
@@ -39,9 +41,9 @@ func ServeStatic(w http.ResponseWriter, r *http.Request) {
 	case ".html":
 		contentType = "text/html; charset=utf-8"
 	case ".css":
-		contentType = "text/css"
+		contentType = "text/css; charset=utf-8"
 	case ".js":
-		contentType = "application/javascript"
+		contentType = "application/javascript; charset=utf-8"
 	case ".json":
 		contentType = "application/json"
 	case ".png":
@@ -63,35 +65,33 @@ func ServeStatic(w http.ResponseWriter, r *http.Request) {
 	case ".eot":
 		contentType = "application/vnd.ms-fontobject"
 	default:
-		contentType = "application/octet-stream"
+		contentType = "text/plain; charset=utf-8"
 	}
 	
 	w.Header().Set("Content-Type", contentType)
 	
-	// Открываем файл
-	file, err := NewStaticFileSystem().Open(path)
+	// Читаем файл напрямую из файловой системы
+	filePath := "static/" + path
+	content, err := os.ReadFile(filePath)
 	if err != nil {
 		// Если файл не найден, возвращаем index.html для SPA
 		if path != "index.html" {
-			file, err = NewStaticFileSystem().Open("index.html")
+			content, err = os.ReadFile("static/index.html")
 			if err != nil {
 				http.Error(w, "File not found", http.StatusNotFound)
 				return
 			}
+			// Устанавливаем правильный Content-Type для HTML
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		} else {
 			http.Error(w, "File not found", http.StatusNotFound)
 			return
 		}
 	}
-	defer file.Close()
 	
-	// Копируем содержимое файла в ответ
-	stat, err := file.Stat()
-	if err != nil {
-		http.Error(w, "File stat error", http.StatusInternalServerError)
-		return
-	}
-	http.ServeContent(w, r, path, stat.ModTime(), file)
+	// Устанавливаем заголовки и отправляем содержимое
+	w.Header().Set("Content-Length", fmt.Sprintf("%d", len(content)))
+	w.Write(content)
 }
 
 // GetStaticFileList возвращает список доступных статических файлов

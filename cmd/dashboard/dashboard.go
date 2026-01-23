@@ -18,9 +18,9 @@ func main() {
 	addr := flag.String("addr", ":9990", "Адрес для веб-интерфейса")
 	flag.Parse()
 
-	fmt.Println("\033[1;36m==============================\033[0m")
-	fmt.Println("\033[1;36m  2GC CloudBridge Dashboard\033[0m")
-	fmt.Println("\033[1;36m==============================\033[0m")
+	fmt.Println("==============================")
+	fmt.Println("  2GC CloudBridge Dashboard")
+	fmt.Println("==============================")
 
 	// Обработка сигналов для graceful shutdown
 	sigs := make(chan os.Signal, 1)
@@ -28,7 +28,7 @@ func main() {
 
 	go func() {
 		<-sigs
-		fmt.Println("\nПолучен сигнал завершения, остановка дашборда...")
+		fmt.Println("\nReceived termination signal, stopping dashboard...")
 		os.Exit(0)
 	}()
 
@@ -37,10 +37,10 @@ func main() {
 
 // startDashboard запускает веб-интерфейс
 func startDashboard(addr string) {
-	fmt.Println("🚀 Starting QUIC Testing Dashboard on http://localhost:9990")
-	fmt.Println("📊 Open your browser and navigate to http://localhost:9990")
-	fmt.Println("🛑 Press Ctrl+C to stop the server")
-	fmt.Println("🔍 Advanced analysis features available at:")
+	fmt.Println("Starting QUIC Testing Dashboard on http://localhost:9990")
+	fmt.Println("Open your browser and navigate to http://localhost:9990")
+	fmt.Println("Press Ctrl+C to stop the server")
+	fmt.Println("Advanced analysis features available at:")
 	fmt.Println("   - /api/status - Dashboard status")
 	fmt.Println("   - /api/run - Start test")
 	fmt.Println("   - /api/stop - Stop test")
@@ -55,16 +55,9 @@ func startDashboard(addr string) {
 
 	// Статические файлы
 	http.Handle("/static/", http.StripPrefix("/static/", internal.StaticFileHandler()))
-	http.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/" {
-			// Отдаем index.html из embed.FS
-			http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-				internal.ServeStatic(w, r)
-			})
-		} else {
-			internal.ServeStatic(w, r)
-		}
-	}))
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		internal.ServeStatic(w, r)
+	})
 
 	// API endpoints
 	http.HandleFunc("/api/status", api.StatusHandler)
@@ -78,7 +71,7 @@ func startDashboard(addr string) {
 	http.HandleFunc("/api/events", sseManager.SSEServerHandler)
 
 	// Запускаем сервер
-	fmt.Printf("🚀 Dashboard запущен на http://localhost%s\n", addr)
+	fmt.Printf("Dashboard started on http://localhost%s\n", addr)
 	
 	// Запускаем goroutine для периодической отправки метрик
 	go func() {

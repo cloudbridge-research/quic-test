@@ -12,6 +12,7 @@ import (
 
 	"quic-test/client"
 	"quic-test/internal"
+	"quic-test/internal/cli/cmd"
 	"quic-test/server"
 )
 
@@ -235,6 +236,9 @@ func main() {
 	case "test":
 		fmt.Println("Starting in test mode (server+client)...")
 		runTestMode(cfg)
+	case "dashboard":
+		fmt.Println("Starting dashboard mode...")
+		runDashboardMode(cfg)
 	default:
 		fmt.Println("Unknown mode", cfg.Mode)
 		os.Exit(1)
@@ -263,5 +267,15 @@ func runTestMode(cfg internal.TestConfig) {
 		serverTimeout.Stop()
 	case <-serverTimeout.C:
 		fmt.Println("Server shutdown timeout, exiting...")
+	}
+}
+
+// runDashboardMode starts the web dashboard
+func runDashboardMode(cfg internal.TestConfig) {
+	// Import and run dashboard from CLI commands
+	dashboardHandler := cmd.NewDashboardHandler()
+	if err := dashboardHandler.Run(nil); err != nil {
+		fmt.Printf("Dashboard error: %v\n", err)
+		os.Exit(1)
 	}
 }

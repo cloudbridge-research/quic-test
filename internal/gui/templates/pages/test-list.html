@@ -1,0 +1,98 @@
+{{define "content"}}
+<div class="page-header">
+    <h2>Test History</h2>
+    <p>View and manage your test results</p>
+</div>
+
+<div class="test-list-container">
+    <div class="test-list-header">
+        <div class="list-controls">
+            <input type="text" id="search-tests" placeholder="Search tests..." class="search-input">
+            <select id="filter-status" class="filter-select">
+                <option value="">All Status</option>
+                <option value="running">Running</option>
+                <option value="completed">Completed</option>
+                <option value="failed">Failed</option>
+                <option value="stopped">Stopped</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="test-list" class="test-list">
+        <p>Loading test history...</p>
+    </div>
+</div>
+{{end}}
+
+{{define "scripts"}}
+<script>
+    function loadTestList() {
+        fetch('/api/tests')
+            .then(response => response.json())
+            .then(result => {
+                const container = document.getElementById('test-list');
+                
+                const tests = result.success && result.data ? result.data.tests : [];
+                
+                if (tests.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><p>No tests found</p><a href="/test/new" class="btn btn-primary">Create First Test</a></div>';
+                    return;
+                }
+                
+                // Sort tests by start time (newest first)
+                tests.sort((a, b) => new Date(b.start_time) - new Date(a.start_time));
+                
+                const html = tests.map(test => {
+                    const startTime = new Date(test.start_time).toLocaleString();
+                    const duration = test.end_time ? 
+                        Math.round((new Date(test.end_time) - new Date(test.start_time)) / 1000) + 's' : 
+                        'Running';
+                    
+                    return '<div class="test-item">' +
+                        '<div class="test-header">' +
+                        '<h3><a href="/test/' + test.id + '">' + test.id + '</a></h3>' +
+                        '<span class="test-status status-' + test.status + '">' + test.status + '</span>' +
+                        '</div>' +
+                        '<div class="test-details">' +
+                        '<span class="test-mode">' + test.config.mode + '</span>' +
+                        '<span class="test-time">' + startTime + '</span>' +
+                        '<span class="test-duration">' + duration + '</span>' +
+                        '</div>' +
+                        '</div>';
+                }).join('');
+                
+                container.innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Failed to load test list:', error);
+                document.getElementById('test-list').innerHTML = '<p>Failed to load test history</p>';
+            });
+    }
+    
+    // Load test list on page load
+    loadTestList();
+    
+    // Auto-refresh every 5 seconds
+    setInterval(loadTestList, 5000);
+    
+    // Search and filter functionality
+    document.getElementById('search-tests').addEventListener('input', filterTests);
+    document.getElementById('filter-status').addEventListener('change', filterTests);
+    
+    function filterTests() {
+        const searchTerm = document.getElementById('search-tests').value.toLowerCase();
+        const statusFilter = document.getElementById('filter-status').value;
+        const testItems = document.querySelectorAll('.test-item');
+        
+        testItems.forEach(item => {
+            const testId = item.querySelector('h3 a').textContent.toLowerCase();
+            const testStatus = item.querySelector('.test-status').textContent;
+            
+            const matchesSearch = testId.includes(searchTerm);
+            const matchesStatus = !statusFilter || testStatus === statusFilter;
+            
+            item.style.display = (matchesSearch && matchesStatus) ? 'block' : 'none';
+        });
+    }
+</script>
+{{end}}

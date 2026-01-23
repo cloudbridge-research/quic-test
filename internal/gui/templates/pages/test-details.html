@@ -1,0 +1,197 @@
+{{define "content"}}
+<div class="page-header">
+    <h2>Test Details</h2>
+    <div class="test-actions">
+        <button id="refresh-btn" class="btn btn-secondary">Refresh</button>
+        <button id="stop-btn" class="btn btn-danger" style="display: none;">Stop Test</button>
+        <a href="/tests" class="btn btn-secondary">Back to List</a>
+    </div>
+</div>
+
+<div class="test-overview">
+    <div class="test-info-card">
+        <h3>Test Information</h3>
+        <div class="info-grid">
+            <div class="info-item">
+                <label>Test ID:</label>
+                <span id="test-id">{{.Session.ID}}</span>
+            </div>
+            <div class="info-item">
+                <label>Status:</label>
+                <span id="test-status" class="status-indicator status-{{.Session.Status}}">{{.Session.Status}}</span>
+            </div>
+            <div class="info-item">
+                <label>Mode:</label>
+                <span id="test-mode">{{.Session.Config.Mode}}</span>
+            </div>
+            <div class="info-item">
+                <label>Started:</label>
+                <span id="test-start-time">{{formatTime .Session.StartTime}}</span>
+            </div>
+            <div class="info-item">
+                <label>Duration:</label>
+                <span id="test-duration">{{if .Session.Config.Duration}}{{formatDuration .Session.Config.Duration}}{{else}}Unlimited{{end}}</span>
+            </div>
+            <div class="info-item">
+                <label>Server Address:</label>
+                <span id="test-addr">{{.Session.Config.Addr}}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-config-card">
+        <h3>Configuration</h3>
+        <div class="config-grid">
+            <div class="config-item">
+                <label>Connections:</label>
+                <span>{{.Session.Config.Connections}}</span>
+            </div>
+            <div class="config-item">
+                <label>Streams:</label>
+                <span>{{.Session.Config.Streams}}</span>
+            </div>
+            <div class="config-item">
+                <label>Packet Size:</label>
+                <span>{{.Session.Config.PacketSize}} bytes</span>
+            </div>
+            <div class="config-item">
+                <label>Rate:</label>
+                <span>{{.Session.Config.Rate}} pps</span>
+            </div>
+            <div class="config-item">
+                <label>Prometheus:</label>
+                <span>{{if .Session.Config.Prometheus}}Enabled{{else}}Disabled{{end}}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="metrics-section">
+    <div class="metrics-card">
+        <h3>Current Metrics</h3>
+        <div class="metrics-grid" id="current-metrics">
+            <div class="metric-item">
+                <label>Latency:</label>
+                <span id="metric-latency">Loading...</span>
+            </div>
+            <div class="metric-item">
+                <label>Throughput:</label>
+                <span id="metric-throughput">Loading...</span>
+            </div>
+            <div class="metric-item">
+                <label>Packet Loss:</label>
+                <span id="metric-packet-loss">Loading...</span>
+            </div>
+            <div class="metric-item">
+                <label>Connections:</label>
+                <span id="metric-connections">Loading...</span>
+            </div>
+            <div class="metric-item">
+                <label>Elapsed Time:</label>
+                <span id="metric-elapsed">Loading...</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="logs-card">
+        <h3>Test Logs</h3>
+        <div class="logs-container" id="test-logs">
+            <p>Loading logs...</p>
+        </div>
+    </div>
+</div>
+{{end}}
+
+{{define "scripts"}}
+<script>
+    const testId = '{{.Session.ID}}';
+    let refreshInterval;
+
+    function updateTestDetails() {
+        fetch('/api/tests/' + testId)
+            .then(response => response.json())
+            .then(result => {
+                if (result.success && result.data) {
+                    const test = result.data;
+                    
+                    // Update status
+                    const statusElement = document.getElementById('test-status');
+                    statusElement.textContent = test.status;
+                    statusElement.className = 'status-indicator status-' + test.status;
+                    
+                    // Show/hide stop button
+                    const stopBtn = document.getElementById('stop-btn');
+                    if (test.status === 'running') {
+                        stopBtn.style.display = 'inline-block';
+                    } else {
+                        stopBtn.style.display = 'none';
+                    }
+                    
+                    // Update metrics
+                    if (test.metrics) {
+                        document.getElementById('metric-latency').textContent = 
+                            test.metrics.latency_ms ? test.metrics.latency_ms.toFixed(1) + ' ms' : 'N/A';
+                        document.getElementById('metric-throughput').textContent = 
+                            test.metrics.throughput_mbps ? test.metrics.throughput_mbps.toFixed(1) + ' Mbps' : 'N/A';
+                        document.getElementById('metric-packet-loss').textContent = 
+                            test.metrics.packet_loss ? (test.metrics.packet_loss * 100).toFixed(2) + '%' : 'N/A';
+                        document.getElementById('metric-connections').textContent = 
+                            test.metrics.connections || '0';
+                        document.getElementById('metric-elapsed').textContent = 
+                            test.metrics.elapsed_seconds ? test.metrics.elapsed_seconds.toFixed(1) + ' s' : 'N/A';
+                    }
+                    
+                    // Update logs
+                    if (test.logs && test.logs.length > 0) {
+                        const logsHtml = test.logs.map(log => 
+                            '<div class="log-entry">' + log + '</div>'
+                        ).join('');
+                        document.getElementById('test-logs').innerHTML = logsHtml;
+                    }
+                    
+                    // Stop auto-refresh if test is completed
+                    if (test.status !== 'running' && refreshInterval) {
+                        clearInterval(refreshInterval);
+                        refreshInterval = null;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Failed to update test details:', error);
+            });
+    }
+
+    function stopTest() {
+        if (confirm('Are you sure you want to stop this test?')) {
+            fetch('/api/tests/' + testId, { method: 'DELETE' })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        updateTestDetails();
+                    } else {
+                        alert('Failed to stop test: ' + (result.error || 'Unknown error'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Failed to stop test:', error);
+                    alert('Failed to stop test');
+                });
+        }
+    }
+
+    // Event listeners
+    document.getElementById('refresh-btn').addEventListener('click', updateTestDetails);
+    document.getElementById('stop-btn').addEventListener('click', stopTest);
+
+    // Initial load and auto-refresh
+    updateTestDetails();
+    refreshInterval = setInterval(updateTestDetails, 2000); // Refresh every 2 seconds
+
+    // Clean up interval on page unload
+    window.addEventListener('beforeunload', () => {
+        if (refreshInterval) {
+            clearInterval(refreshInterval);
+        }
+    });
+</script>
+{{end}}

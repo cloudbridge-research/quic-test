@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"quic-test/internal"
+	"quic-test/internal/ca"
 	"quic-test/internal/fec"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -176,6 +177,30 @@ func makeTLSConfig(cfg internal.TestConfig) *tls.Config {
 		}
 	}
 	
+	// Если сертификаты не указаны, пытаемся использовать CA
+	if !cfg.NoTLS {
+		// Проверяем, есть ли сертификаты от CA
+		serverCert, serverKey, err := ca.SetupDefaultCertificates()
+		if err != nil {
+			fmt.Printf("Warning: Failed to setup CA certificates: %v\n", err)
+			// Fallback на стандартную генерацию
+			return internal.GenerateTLSConfig(cfg.NoTLS)
+		}
+
+		// Загружаем сертификат от CA
+		cert, err := tls.LoadX509KeyPair(serverCert, serverKey)
+		if err != nil {
+			fmt.Printf("Warning: Failed to load CA certificate: %v\n", err)
+			return internal.GenerateTLSConfig(cfg.NoTLS)
+		}
+
+		return &tls.Config{
+			Certificates: []tls.Certificate{cert},
+			NextProtos:   []string{"quic-test"},
+			MinVersion:   tls.VersionTLS12,
+		}
+	}
+	
 	// Use unified function for TLS configuration generation
 	return internal.GenerateTLSConfig(cfg.NoTLS)
 }
@@ -230,7 +255,7 @@ func startPrometheusExporter(metrics *serverMetrics) {
 	serverMux := http.NewServeMux()
 	serverMux.Handle("/metrics", promhttp.Handler())
 	
-	fmt.Println("Prometheus сервер endpoint доступен на :2113/metrics")
+	fmt.Println("Prometheus server endpoint available on :2113/metrics")
 	if err := http.ListenAndServe(":2113", serverMux); err != nil {
 		log.Printf("Failed to start Prometheus server: %v", err)
 	}

@@ -1,4 +1,4 @@
-# 2GC CloudBridge QUIC testing - GoReleaser конфигурация
+# Cloudbridge Research QUIC testing - GoReleaser конфигурация
 # Автоматическая сборка релизов для всех платформ
 
 project_name: quic-test
@@ -222,7 +222,7 @@ release:
   prerelease: auto
   name_template: "v{{.Version}}"
   header: |
-    ## 2GC CloudBridge QUIC testing v{{.Version}}
+    ## Cloudbridge Research QUIC testing v{{.Version}}
     
     ### 📦 Что включено:
     - **quic-test**: Основной бинарник для тестирования
@@ -288,7 +288,7 @@ dockers:
       - "quic-test:latest"
     dockerfile: Dockerfile
     build_flag_templates:
-      - "--label=org.opencontainers.image.title=2GC CloudBridge QUIC testing"
+      - "--label=org.opencontainers.image.title=Cloudbridge Research QUIC testing"
       - "--label=org.opencontainers.image.description=QUIC performance testing tool"
       - "--label=org.opencontainers.image.url=https://github.com/twogc/quic-test"
       - "--label=org.opencontainers.image.source=https://github.com/twogc/quic-test"
@@ -302,7 +302,7 @@ dockers:
       - "quic-test-dashboard:latest"
     dockerfile: Dockerfile.dashboard
     build_flag_templates:
-      - "--label=org.opencontainers.image.title=2GC CloudBridge Dashboard"
+      - "--label=org.opencontainers.image.title=Cloudbridge Research Dashboard"
       - "--label=org.opencontainers.image.description=QUIC testing dashboard"
       - "--label=org.opencontainers.image.url=https://github.com/twogc/quic-test"
       - "--label=org.opencontainers.image.source=https://github.com/twogc/quic-test"

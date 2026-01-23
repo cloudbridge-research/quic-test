@@ -3,7 +3,6 @@ package gui
 import (
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"io"
 	"net/http"
 	"path/filepath"
@@ -16,7 +15,7 @@ import (
 
 // Server handles the GUI web interface
 type Server struct {
-	templates   *template.Template
+	renderer    *TemplateRenderer
 	devMode     bool
 	testManager *TestManager
 	mu          sync.RWMutex
@@ -43,11 +42,11 @@ type TestSession struct {
 // NewServer creates a new GUI server
 func NewServer(devMode bool) *Server {
 	server := &Server{
+		renderer:    NewTemplateRenderer(devMode),
 		devMode:     devMode,
 		testManager: NewTestManager(),
 	}
 	
-	server.loadTemplates()
 	return server
 }
 
@@ -56,41 +55,6 @@ func NewTestManager() *TestManager {
 	return &TestManager{
 		activeTests: make(map[string]*TestSession),
 	}
-}
-
-// loadTemplates loads HTML templates
-func (s *Server) loadTemplates() {
-	if s.devMode {
-		// In dev mode, reload templates on each request
-		return
-	}
-	
-	// Load templates from embedded files or filesystem
-	tmpl := template.New("")
-	
-	// Add template functions
-	tmpl.Funcs(template.FuncMap{
-		"formatDuration": func(d time.Duration) string {
-			return d.String()
-		},
-		"formatTime": func(t time.Time) string {
-			return t.Format("15:04:05")
-		},
-		"formatBytes": func(bytes int64) string {
-			const unit = 1024
-			if bytes < unit {
-				return fmt.Sprintf("%d B", bytes)
-			}
-			div, exp := int64(unit), 0
-			for n := bytes / unit; n >= unit; n /= unit {
-				div *= unit
-				exp++
-			}
-			return fmt.Sprintf("%.1f %cB", float64(bytes)/float64(div), "KMGTPE"[exp])
-		},
-	})
-	
-	s.templates = tmpl
 }
 
 // RegisterRoutes registers HTTP routes
@@ -125,33 +89,35 @@ func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
 	}
 	
 	data := struct {
-		Title       string
 		ActiveTests int
 		TotalTests  int
 		Uptime      time.Duration
 	}{
-		Title:       "QUIC Test Dashboard",
 		ActiveTests: s.testManager.GetActiveTestCount(),
 		TotalTests:  s.testManager.GetTotalTestCount(),
 		Uptime:      time.Since(startTime),
 	}
 	
-	s.renderTemplate(w, "index.html", data)
+	pageData := NewPageData("Dashboard", "dashboard", data)
+	if err := s.renderer.RenderTemplate(w, "index.html", pageData); err != nil {
+		http.Error(w, "Failed to render template", http.StatusInternalServerError)
+	}
 }
 
 // handleNewTest serves the new test creation page
 func (s *Server) handleNewTest(w http.ResponseWriter, r *http.Request) {
 	data := struct {
-		Title    string
 		Presets  []NetworkPreset
 		Profiles []TestProfile
 	}{
-		Title:    "Create New Test",
 		Presets:  getNetworkPresets(),
 		Profiles: getTestProfiles(),
 	}
 	
-	s.renderTemplate(w, "new-test.html", data)
+	pageData := NewPageData("Create New Test", "new-test", data)
+	if err := s.renderer.RenderTemplate(w, "new-test.html", pageData); err != nil {
+		http.Error(w, "Failed to render template", http.StatusInternalServerError)
+	}
 }
 
 // handleTestDetails serves individual test details page
@@ -197,14 +163,15 @@ func (s *Server) handleTestDetails(w http.ResponseWriter, r *http.Request) {
 	}
 	
 	data := struct {
-		Title   string
 		Session *TestSession
 	}{
-		Title:   "Test Details - " + testID,
 		Session: apiResponse.Data,
 	}
 	
-	s.renderTemplate(w, "test-details.html", data)
+	pageData := NewPageData("Test Details - "+testID, "test-details", data)
+	if err := s.renderer.RenderTemplate(w, "test-details.html", pageData); err != nil {
+		http.Error(w, "Failed to render template", http.StatusInternalServerError)
+	}
 }
 
 // handleTestList serves the test list page
@@ -241,36 +208,31 @@ func (s *Server) handleTestList(w http.ResponseWriter, r *http.Request) {
 	}
 	
 	data := struct {
-		Title string
 		Tests []*TestSession
 	}{
-		Title: "Test History",
 		Tests: tests,
 	}
 	
-	s.renderTemplate(w, "test-list.html", data)
+	pageData := NewPageData("Test History", "tests", data)
+	if err := s.renderer.RenderTemplate(w, "test-list.html", pageData); err != nil {
+		http.Error(w, "Failed to render template", http.StatusInternalServerError)
+	}
 }
 
 // handleDocs serves the documentation page
 func (s *Server) handleDocs(w http.ResponseWriter, r *http.Request) {
-	data := struct {
-		Title string
-	}{
-		Title: "Documentation",
+	pageData := NewPageData("Documentation", "docs", nil)
+	if err := s.renderer.RenderTemplate(w, "docs.html", pageData); err != nil {
+		http.Error(w, "Failed to render template", http.StatusInternalServerError)
 	}
-	
-	s.renderTemplate(w, "docs.html", data)
 }
 
 // handleAPIDocs serves the API documentation page
 func (s *Server) handleAPIDocs(w http.ResponseWriter, r *http.Request) {
-	data := struct {
-		Title string
-	}{
-		Title: "API Documentation",
+	pageData := NewPageData("API Documentation", "api-docs", nil)
+	if err := s.renderer.RenderTemplate(w, "api-docs.html", pageData); err != nil {
+		http.Error(w, "Failed to render template", http.StatusInternalServerError)
 	}
-	
-	s.renderTemplate(w, "api-docs.html", data)
 }
 
 // handleStatic serves static files
@@ -353,40 +315,6 @@ func (s *Server) handleAPIProxy(w http.ResponseWriter, r *http.Request) {
 	_, err = io.Copy(w, resp.Body)
 	if err != nil {
 		fmt.Printf("Error copying response body: %v\n", err)
-	}
-}
-
-// renderTemplate renders an HTML template
-func (s *Server) renderTemplate(w http.ResponseWriter, name string, data interface{}) {
-	if s.devMode {
-		// Reload templates in dev mode
-		s.loadTemplates()
-	}
-	
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	
-	// For now, serve a simple HTML response
-	// In production, this would use the loaded templates
-	s.renderSimpleHTML(w, name, data)
-}
-
-// renderSimpleHTML renders a simple HTML response (temporary implementation)
-func (s *Server) renderSimpleHTML(w http.ResponseWriter, name string, data interface{}) {
-	switch name {
-	case "index.html":
-		s.renderIndexHTML(w, data)
-	case "new-test.html":
-		s.renderNewTestHTML(w, data)
-	case "test-details.html":
-		s.renderTestDetailsHTML(w, data)
-	case "test-list.html":
-		s.renderTestListHTML(w, data)
-	case "docs.html":
-		s.renderDocsHTML(w, data)
-	case "api-docs.html":
-		s.renderAPIDocsHTML(w, data)
-	default:
-		http.Error(w, "Template not found", http.StatusNotFound)
 	}
 }
 

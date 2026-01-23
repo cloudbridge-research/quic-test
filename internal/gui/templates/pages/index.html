@@ -1,0 +1,100 @@
+{{define "head"}}
+<script src="/static/js/dashboard.js"></script>
+{{end}}
+
+{{define "content"}}
+<div class="dashboard-header">
+    <h2>Dashboard Overview</h2>
+    <div class="status-indicators">
+        <div class="status-card">
+            <h3>Active Tests</h3>
+            <div class="status-value">{{.ActiveTests}}</div>
+        </div>
+        <div class="status-card">
+            <h3>Total Tests</h3>
+            <div class="status-value">{{.TotalTests}}</div>
+        </div>
+        <div class="status-card">
+            <h3>Uptime</h3>
+            <div class="status-value">{{.Uptime}}</div>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <div class="card">
+        <h3>Quick Start</h3>
+        <p>Create and run QUIC performance tests with ease.</p>
+        <div class="quick-actions">
+            <a href="/test/new" class="btn btn-primary">New Test</a>
+            <a href="/tests" class="btn btn-secondary">View History</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Recent Activity</h3>
+        <div id="recent-activity">
+            <p>Loading recent test activity...</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Active Tests</h3>
+        <div id="active-tests-list">
+            <p>Loading active tests...</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>System Status</h3>
+        <div class="system-status">
+            <div class="status-item">
+                <span class="status-label">GUI Server</span>
+                <span class="status-indicator online">Online</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">API Server</span>
+                <span class="status-indicator online">Online</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Documentation</h3>
+        <p>Learn how to use the QUIC test suite effectively.</p>
+        <div class="doc-links">
+            <a href="/docs">User Guide</a>
+            <a href="/api-docs">API Reference</a>
+        </div>
+    </div>
+</div>
+{{end}}
+
+{{define "scripts"}}
+<script>
+// Load recent activity
+fetch('/api/tests')
+    .then(response => response.json())
+    .then(result => {
+        const container = document.getElementById('recent-activity');
+        if (!result.success || result.data.tests.length === 0) {
+            container.innerHTML = '<p>No recent tests</p>';
+            return;
+        }
+        
+        const recentTests = result.data.tests.slice(-5).reverse();
+        const html = recentTests.map(test => 
+            '<div class="activity-item">' +
+            '<a href="/test/' + test.id + '" class="test-id">' + test.id + '</a>' +
+            '<span class="test-status status-' + test.status + '">' + test.status + '</span>' +
+            '<span class="test-time">' + new Date(test.start_time).toLocaleTimeString() + '</span>' +
+            '</div>'
+        ).join('');
+        container.innerHTML = html;
+    })
+    .catch(error => {
+        console.error('Failed to load recent activity:', error);
+        document.getElementById('recent-activity').innerHTML = '<p>Failed to load activity</p>';
+    });
+</script>
+{{end}}

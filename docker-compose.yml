@@ -10,7 +10,7 @@ services:
       context: .
       dockerfile: Dockerfile.server
     container_name: 2gc-network-server
-    command: ["./quic-server", "--mode=server", "--addr=:9000", "--prometheus", "--pprof-addr=:6060"]
+    command: ["./quic-test", "-mode=server", "-addr=:9000", "-prometheus", "-no-tls"]
     ports:
       - "9000:9000"   # QUIC сервер
       - "2113:2113"   # Prometheus метрики сервера
@@ -21,7 +21,7 @@ services:
       - QUIC_PPROF_ADDR=:6060
     networks:
       - quck-network
-    restart: unless-stopped
+    restart: "no"
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:2113/metrics"]
       interval: 30s
@@ -35,7 +35,7 @@ services:
       context: .
       dockerfile: Dockerfile.client
     container_name: 2gc-network-client
-    command: ["./quic-client", "--mode=client", "--addr=quic-server:9000", "--connections=2", "--streams=4", "--rate=100", "--prometheus", "--duration=60s"]
+    command: ["./quic-test", "-mode=client", "-addr=quic-server:9000", "-connections=2", "-streams=4", "-rate=100", "-prometheus", "-duration=60s", "-no-tls"]
     ports:
       - "2112:2112"   # Prometheus метрики клиента
     environment:
@@ -54,7 +54,7 @@ services:
       context: .
       dockerfile: Dockerfile.dashboard
     container_name: 2gc-network-dashboard
-    command: ["./dashboard", "--mode=dashboard", "--addr=:9990"]
+    command: ["./quic-test", "-mode=dashboard"]
     ports:
       - "9990:9990"   # Веб-дашборд
     environment:
@@ -74,7 +74,7 @@ services:
     image: prom/prometheus:latest
     container_name: 2gc-network-prometheus
     ports:
-      - "9090:9090"
+      - "9091:9090"
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus-data:/prometheus
@@ -124,19 +124,6 @@ services:
       - quck-network
     restart: unless-stopped
 
-networks:
-  quck-network:
-    driver: bridge
-    name: 2gc-network-suite
-
-volumes:
-  prometheus-data:
-    driver: local
-  grafana-data:
-    driver: local
-
-# Дополнительные сервисы для тестирования
-
   # Nginx для балансировки нагрузки (опционально)
   nginx:
     image: nginx:alpine
@@ -168,4 +155,17 @@ volumes:
     restart: unless-stopped
     profiles:
       - redis
+
+networks:
+  quck-network:
+    driver: bridge
+    name: 2gc-network-suite
+
+volumes:
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+  redis-data:
+    driver: local
 

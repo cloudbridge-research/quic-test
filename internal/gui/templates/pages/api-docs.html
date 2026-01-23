@@ -1,0 +1,233 @@
+{{define "content"}}
+<div class="docs-layout">
+    <aside class="docs-sidebar">
+        <nav class="docs-nav">
+            <h3>API Reference</h3>
+            <ul>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#authentication">Authentication</a></li>
+                <li><a href="#test-management">Test Management</a></li>
+                <li><a href="#metrics-api">Metrics API</a></li>
+                <li><a href="#websocket-api">WebSocket API</a></li>
+                <li><a href="#examples">Examples</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <div class="docs-content">
+        <section id="overview">
+            <h2>API Overview</h2>
+            <p>The QUIC Test Suite provides a comprehensive REST API for programmatic access to all testing functionality. The API is designed to be simple, consistent, and powerful.</p>
+            
+            <h3>Base URL</h3>
+            <pre><code>http://localhost:8081/api</code></pre>
+            
+            <h3>Response Format</h3>
+            <p>All API responses follow a consistent JSON format:</p>
+            <pre><code>{
+  "success": true,
+  "data": { ... },
+  "error": null,
+  "timestamp": "2024-01-01T12:00:00Z"
+}</code></pre>
+        </section>
+
+        <section id="authentication">
+            <h2>Authentication</h2>
+            <p>Currently, the API does not require authentication. In production deployments, consider implementing API keys or OAuth2.</p>
+        </section>
+
+        <section id="test-management">
+            <h2>Test Management</h2>
+            
+            <h3>Start Test</h3>
+            <div class="api-endpoint">
+                <div class="method post">POST</div>
+                <div class="path">/api/tests</div>
+            </div>
+            <p>Create and start a new test session.</p>
+            
+            <h4>Request Body</h4>
+            <pre><code>{
+  "mode": "test",
+  "duration": "60s",
+  "connections": 2,
+  "streams": 4,
+  "addr": "localhost:9000",
+  "packet_size": 1200,
+  "rate": 100,
+  "congestion_control": "bbrv3",
+  "prometheus": true,
+  "fec_enabled": false,
+  "fec_redundancy": 0.10
+}</code></pre>
+            
+            <h4>Response</h4>
+            <pre><code>{
+  "success": true,
+  "data": {
+    "id": "test_1704110400",
+    "status": "running",
+    "start_time": "2024-01-01T12:00:00Z",
+    "config": { ... }
+  }
+}</code></pre>
+            
+            <h3>Get Test Status</h3>
+            <div class="api-endpoint">
+                <div class="method get">GET</div>
+                <div class="path">/api/tests/{id}</div>
+            </div>
+            <p>Retrieve current status and metrics for a test.</p>
+            
+            <h4>Response</h4>
+            <pre><code>{
+  "success": true,
+  "data": {
+    "id": "test_1704110400",
+    "status": "running",
+    "start_time": "2024-01-01T12:00:00Z",
+    "metrics": {
+      "latency_ms": 45.2,
+      "throughput_mbps": 125.8,
+      "packet_loss": 0.01,
+      "connections": 2
+    },
+    "logs": [
+      "[12:00:01] Test started",
+      "[12:00:02] Server started, beginning client test"
+    ]
+  }
+}</code></pre>
+            
+            <h3>Stop Test</h3>
+            <div class="api-endpoint">
+                <div class="method delete">DELETE</div>
+                <div class="path">/api/tests/{id}</div>
+            </div>
+            <p>Stop a running test.</p>
+            
+            <h4>Response</h4>
+            <pre><code>{
+  "success": true,
+  "data": {
+    "message": "Test stopped successfully"
+  }
+}</code></pre>
+            
+            <h3>List Tests</h3>
+            <div class="api-endpoint">
+                <div class="method get">GET</div>
+                <div class="path">/api/tests</div>
+            </div>
+            <p>Retrieve list of all tests.</p>
+            
+            <h4>Query Parameters</h4>
+            <ul>
+                <li><code>status</code> - Filter by status (running, completed, failed, stopped)</li>
+                <li><code>limit</code> - Maximum number of results (default: 50)</li>
+                <li><code>offset</code> - Number of results to skip (default: 0)</li>
+            </ul>
+        </section>
+
+        <section id="metrics-api">
+            <h2>Metrics API</h2>
+            
+            <h3>Get Current Metrics</h3>
+            <div class="api-endpoint">
+                <div class="method get">GET</div>
+                <div class="path">/api/metrics/current</div>
+            </div>
+            <p>Get current aggregated metrics from all active tests.</p>
+            
+            <h3>Get Historical Metrics</h3>
+            <div class="api-endpoint">
+                <div class="method get">GET</div>
+                <div class="path">/api/metrics/history</div>
+            </div>
+            <p>Get historical metrics data for analysis.</p>
+            
+            <h4>Query Parameters</h4>
+            <ul>
+                <li><code>test_id</code> - Specific test ID</li>
+                <li><code>start_time</code> - Start time (ISO 8601)</li>
+                <li><code>end_time</code> - End time (ISO 8601)</li>
+                <li><code>interval</code> - Data interval (1s, 5s, 1m, etc.)</li>
+            </ul>
+            
+            <h3>Prometheus Metrics</h3>
+            <div class="api-endpoint">
+                <div class="method get">GET</div>
+                <div class="path">/api/metrics/prometheus</div>
+            </div>
+            <p>Get metrics in Prometheus format for scraping.</p>
+        </section>
+
+        <section id="websocket-api">
+            <h2>WebSocket API</h2>
+            <p>Real-time metrics streaming via WebSocket connection.</p>
+            
+            <h3>Connection</h3>
+            <pre><code>ws://localhost:8081/api/ws/metrics</code></pre>
+            
+            <h3>Message Format</h3>
+            <pre><code>{
+  "type": "metrics_update",
+  "test_id": "test_1704110400",
+  "timestamp": "2024-01-01T12:00:00Z",
+  "data": {
+    "latency_ms": 45.2,
+    "throughput_mbps": 125.8,
+    "packet_loss": 0.01
+  }
+}</code></pre>
+        </section>
+
+        <section id="examples">
+            <h2>Examples</h2>
+            
+            <h3>Start a Basic Test</h3>
+            <pre><code>curl -X POST http://localhost:8081/api/tests \
+  -H "Content-Type: application/json" \
+  -d '{
+    "mode": "test",
+    "duration": "60s",
+    "connections": 2,
+    "streams": 4
+  }'</code></pre>
+            
+            <h3>Monitor Test Progress</h3>
+            <pre><code>curl http://localhost:8081/api/tests/test_1704110400</code></pre>
+            
+            <h3>Get Prometheus Metrics</h3>
+            <pre><code>curl http://localhost:8081/api/metrics/prometheus</code></pre>
+            
+            <h3>JavaScript Example</h3>
+            <pre><code>// Start a test
+const response = await fetch('/api/tests', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    mode: 'test',
+    duration: '60s',
+    connections: 2,
+    streams: 4,
+    congestion_control: 'bbrv3'
+  })
+});
+
+const result = await response.json();
+const testId = result.data.id;
+
+// Monitor progress
+const ws = new WebSocket('ws://localhost:8081/api/ws/metrics');
+ws.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  if (data.test_id === testId) {
+    console.log('Metrics update:', data.data);
+  }
+};</code></pre>
+        </section>
+    </div>
+</div>
+{{end}}

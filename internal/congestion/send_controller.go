@@ -5,6 +5,7 @@ import (
 	"time"
 	
 	"go.uber.org/zap"
+	"quic-test/internal/congestion/bbrv3"
 )
 
 var debugLogger *zap.Logger
@@ -46,11 +47,37 @@ type BBRv3Controller struct {
 
 func (c *BBRv3Controller) OnAck(s Sample) (cwnd int, pacing int64) {
 	c.BBRv3.OnPacketAcked()
-	return c.BBRv3.OnAck(s)
+	// Convert Sample to bbrv3.Sample
+	bbrv3Sample := bbrv3.Sample{
+		RS:   bbrv3.RateSample{
+			BytesAcked:   s.RS.BytesAcked,
+			IsAppLimited: s.RS.IsAppLimited,
+			Interval:     s.RS.Interval,
+		},
+		RTT:  s.RTT,
+		Loss: s.Loss,
+	}
+	return c.BBRv3.OnAck(bbrv3Sample)
 }
 
 func (c *BBRv3Controller) OnLoss() (cwnd int, pacing int64) {
 	return c.BBRv3.OnLoss()
+}
+
+// GetStateString returns the current state as a string
+func (c *BBRv3Controller) GetStateString() string {
+	switch c.BBRv3.GetStateInt() {
+	case 0: // bbrv3Startup
+		return "Startup"
+	case 1: // bbrv3Drain
+		return "Drain"
+	case 2: // bbrv3ProbeBW
+		return "ProbeBW"
+	case 3: // bbrv3ProbeRTT
+		return "ProbeRTT"
+	default:
+		return "Unknown"
+	}
 }
 
 // SendController integrates congestion control, pacer, and rate sampler
@@ -198,7 +225,7 @@ func (sc *SendController) GetState() string {
 	switch sc.algorithm {
 	case "bbrv3":
 		if bbrv3, ok := sc.cc.(*BBRv3Controller); ok {
-			return bbrv3.getStateString()
+			return bbrv3.GetStateString()
 		}
 	case "bbrv2", "bbr":
 		if bbrv2, ok := sc.cc.(*BBRv2Controller); ok {

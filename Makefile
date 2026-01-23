@@ -27,6 +27,26 @@ build:
 	go build -o quic-gui ./cmd/gui/
 	@echo "Build completed"
 
+# Build client binary
+build-client:
+	@echo "Building QUIC client..."
+	mkdir -p build
+	go build -o build/quic-client ./cmd/quic-client/
+	@echo "Client build completed"
+
+# Build server binary
+build-server:
+	@echo "Building QUIC server..."
+	mkdir -p build
+	go build -o build/quic-server ./cmd/quic-server/
+	@echo "Server build completed"
+
+# Build dashboard binary
+build-dashboard:
+	@echo "Building dashboard..."
+	go build -o dashboard ./cmd/dashboard/
+	@echo "Dashboard build completed"
+
 # Build the experimental QUIC test binary
 build-experimental:
 	@echo "Building QUIC test experimental binary..."

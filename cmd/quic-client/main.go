@@ -14,7 +14,7 @@ import (
 
 func main() {
 	fmt.Println("\033[1;36m==============================\033[0m")
-	fmt.Println("\033[1;36m  2GC CloudBridge QUIC Client\033[0m")
+	fmt.Println("\033[1;36m  Cloudbridge Research QUIC Client\033[0m")
 	fmt.Println("\033[1;36m==============================\033[0m")
 
 	// Парсинг флагов

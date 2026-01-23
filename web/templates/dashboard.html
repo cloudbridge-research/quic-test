@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QUIC Testing Dashboard</title>
+    <link rel="stylesheet" href="/static/css/zitadel.css">
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="lgn-grow">
+        <div class="lgn-header">
+            <h1>QUIC Testing Dashboard</h1>
+        </div>
+
+        <div class="content-container">
+            <div class="lgn-head">
+                <h1>Network Protocol Testing Interface</h1>
+                <p>Professional QUIC protocol testing and performance monitoring</p>
+            </div>
+
+            <!-- Process Management Section -->
+            <section class="dashboard-section">
+                <h2>Process Management</h2>
+                <div class="lgn-row">
+                    <div class="process-control-group">
+                        <div class="process-status-row">
+                            <span class="process-label">QUIC Server:</span>
+                            <span id="server-status" class="status-indicator status-stopped">Stopped</span>
+                        </div>
+                        <div class="lgn-actions">
+                            <button id="server-start" class="lgn-button lgn-success">Start Server</button>
+                            <button id="server-stop" class="lgn-stroked-button lgn-warn">Stop Server</button>
+                        </div>
+                    </div>
+                    
+                    <div class="process-control-group">
+                        <div class="process-status-row">
+                            <span class="process-label">QUIC Client:</span>
+                            <span id="client-status" class="status-indicator status-stopped">Stopped</span>
+                        </div>
+                        <div class="lgn-actions">
+                            <button id="client-start" class="lgn-button lgn-success">Start Client</button>
+                            <button id="client-stop" class="lgn-stroked-button lgn-warn">Stop Client</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="lgn-actions lgn-justify-center">
+                    <button id="test-start" class="lgn-raised-button lgn-primary">Start Integrated Test</button>
+                    <button id="test-stop" class="lgn-stroked-button lgn-warn">Stop All Processes</button>
+                </div>
+            </section>
+
+            <!-- Performance Metrics Section -->
+            <section class="dashboard-section">
+                <h2>Performance Metrics</h2>
+                
+                <!-- Metrics Tabs -->
+                <div class="metrics-tabs">
+                    <button class="tab-button active" data-tab="overview">Overview</button>
+                    <button class="tab-button" data-tab="detailed">Detailed</button>
+                    <button class="tab-button" data-tab="protocol">Protocol</button>
+                    <button class="tab-button" data-tab="educational">Educational</button>
+                </div>
+
+                <!-- Overview Metrics -->
+                <div class="tab-content active" id="overview-metrics">
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-value" id="packets-sent">0</div>
+                            <div class="metric-label">Packets Sent</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="packets-received">0</div>
+                            <div class="metric-label">Packets Received</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="bytes-sent">0 B</div>
+                            <div class="metric-label">Bytes Sent</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="throughput">0 Mbps</div>
+                            <div class="metric-label">Throughput</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Real-time Charts -->
+                    <div class="charts-section">
+                        <div class="chart-container">
+                            <h4>Throughput Over Time</h4>
+                            <canvas id="throughputChart" width="400" height="200"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <h4>RTT and Packet Loss</h4>
+                            <canvas id="rttLossChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Metrics -->
+                <div class="tab-content" id="detailed-metrics">
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-value" id="rtt-current">0 ms</div>
+                            <div class="metric-label">Current RTT</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="rtt-min">0 ms</div>
+                            <div class="metric-label">Min RTT</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="packet-loss-rate">0%</div>
+                            <div class="metric-label">Packet Loss Rate</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="retransmissions">0</div>
+                            <div class="metric-label">Retransmissions</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="congestion-window">0 KB</div>
+                            <div class="metric-label">Congestion Window</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="flow-control-window">0 KB</div>
+                            <div class="metric-label">Flow Control Window</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Protocol Metrics -->
+                <div class="tab-content" id="protocol-metrics">
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-value" id="handshake-time">0 ms</div>
+                            <div class="metric-label">Handshake Time</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="zero-rtt-success">0%</div>
+                            <div class="metric-label">0-RTT Success Rate</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="key-updates">0</div>
+                            <div class="metric-label">Key Updates</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="stream-creation-time">0 ms</div>
+                            <div class="metric-label">Stream Creation Time</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="connection-migrations">0</div>
+                            <div class="metric-label">Connection Migrations</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="datagram-success">0%</div>
+                            <div class="metric-label">Datagram Success Rate</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Educational Metrics -->
+                <div class="tab-content" id="educational-metrics">
+                    <div class="educational-insights">
+                        <div class="insight-card">
+                            <h4>Connection Quality</h4>
+                            <div class="quality-indicator" id="connection-quality">
+                                <div class="quality-bar">
+                                    <div class="quality-fill" style="width: 85%"></div>
+                                </div>
+                                <span class="quality-text">Good (85%)</span>
+                            </div>
+                            <p class="insight-explanation">Based on RTT, packet loss, and throughput</p>
+                        </div>
+                        
+                        <div class="insight-card">
+                            <h4>Congestion Control Efficiency</h4>
+                            <div class="efficiency-meter" id="cc-efficiency">
+                                <div class="meter-value">78%</div>
+                                <div class="meter-label">BBR Performance</div>
+                            </div>
+                            <p class="insight-explanation">How well the congestion control adapts to network conditions</p>
+                        </div>
+                        
+                        <div class="insight-card">
+                            <h4>Protocol Overhead</h4>
+                            <div class="overhead-comparison">
+                                <div class="overhead-item">
+                                    <span class="protocol-name">QUIC</span>
+                                    <div class="overhead-bar">
+                                        <div class="overhead-fill quic" style="width: 15%"></div>
+                                    </div>
+                                    <span class="overhead-value">15%</span>
+                                </div>
+                                <div class="overhead-item">
+                                    <span class="protocol-name">TCP+TLS</span>
+                                    <div class="overhead-bar">
+                                        <div class="overhead-fill tcp" style="width: 25%"></div>
+                                    </div>
+                                    <span class="overhead-value">25%</span>
+                                </div>
+                            </div>
+                            <p class="insight-explanation">Protocol overhead comparison</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Protocol Comparison Chart -->
+                    <div class="protocol-comparison-section">
+                        <h4>QUIC vs TCP+TLS Performance Comparison</h4>
+                        <div class="comparison-chart-container">
+                            <canvas id="protocolComparisonChart" width="600" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Educational Presets Section -->
+            <section class="dashboard-section">
+                <h2>Educational Presets</h2>
+                <div class="preset-grid">
+                    <div class="preset-card" data-preset="beginner">
+                        <h3>Beginner Setup</h3>
+                        <p>Basic QUIC connection with minimal configuration</p>
+                        <button class="lgn-button preset-btn">Load Preset</button>
+                    </div>
+                    <div class="preset-card" data-preset="congestion-comparison">
+                        <h3>Congestion Control Study</h3>
+                        <p>Compare BBR vs CUBIC algorithms</p>
+                        <button class="lgn-button preset-btn">Load Preset</button>
+                    </div>
+                    <div class="preset-card" data-preset="handshake-analysis">
+                        <h3>Handshake Analysis</h3>
+                        <p>Study QUIC handshake process and 0-RTT</p>
+                        <button class="lgn-button preset-btn">Load Preset</button>
+                    </div>
+                    <div class="preset-card" data-preset="network-conditions">
+                        <h3>Network Conditions</h3>
+                        <p>Test under various network conditions</p>
+                        <button class="lgn-button preset-btn">Load Preset</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Test Configuration Section -->
+            <section class="dashboard-section">
+                <h2>Test Configuration</h2>
+                
+                <!-- Configuration Tabs -->
+                <div class="config-tabs">
+                    <button class="tab-button active" data-tab="basic">Basic Settings</button>
+                    <button class="tab-button" data-tab="quic">QUIC Protocol</button>
+                    <button class="tab-button" data-tab="network">Network Emulation</button>
+                    <button class="tab-button" data-tab="advanced">Advanced</button>
+                </div>
+
+                <!-- Basic Settings Tab -->
+                <div class="tab-content active" id="basic-tab">
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="lgn-label">Server Address</label>
+                            <input type="text" id="addr" class="lgn-input" value="localhost:9000">
+                        </div>
+                        <div class="form-field">
+                            <label class="lgn-label">Connections</label>
+                            <input type="number" id="connections" class="lgn-input" value="2" min="1" max="100">
+                        </div>
+                        <div class="form-field">
+                            <label class="lgn-label">Streams per Connection</label>
+                            <input type="number" id="streams" class="lgn-input" value="4" min="1" max="100">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="lgn-label">Packet Size (bytes)</label>
+                            <input type="number" id="packet-size" class="lgn-input" value="1200" min="64" max="65535">
+                        </div>
+                        <div class="form-field">
+                            <label class="lgn-label">Rate (packets/sec)</label>
+                            <input type="number" id="rate" class="lgn-input" value="200" min="1" max="10000">
+                        </div>
+                        <div class="form-field">
+                            <label class="lgn-label">Duration (seconds)</label>
+                            <input type="number" id="duration" class="lgn-input" value="60" min="1" max="3600">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="lgn-label">Data Pattern</label>
+                            <select id="pattern" class="lgn-select">
+                                <option value="random">Random</option>
+                                <option value="zeroes">Zeroes</option>
+                                <option value="increment">Increment</option>
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label class="lgn-label">QUIC Version</label>
+                            <select id="quic-version" class="lgn-select">
+                                <option value="v1">QUIC v1 (RFC 9000)</option>
+                                <option value="v2">QUIC v2 (RFC 9369)</option>
+                                <option value="draft-29">Draft-29</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- QUIC Protocol Tab -->
+                <div class="tab-content" id="quic-tab">
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="lgn-label">Congestion Control</label>
+                            <select id="congestion-control" class="lgn-select">
+                                <option value="cubic">CUBIC (Default)</option>
+                                <option value="bbr">BBR v1</option>
+                                <option value="bbrv2">BBR v2</option>
+                                <option value="bbrv3">BBR v3</option>
+                                <option value="reno">Reno</option>
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label class="lgn-label">Max Idle Timeout (ms)</label>
+                            <input type="number" id="max-idle-timeout" class="lgn-input" value="30000" min="1000" max="600000">
+                        </div>
+                        <div class="form-field">
+                            <label class="lgn-label">Handshake Timeout (ms)</label>
+                            <input type="number" id="handshake-timeout" class="lgn-input" value="10000" min="1000" max="60000">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="lgn-label">Max Stream Data (KB)</label>
+                            <input type="number" id="max-stream-data" class="lgn-input" value="1024" min="1" max="65536">
+                        </div>
+                        <div class="form-field">
+                            <label class="lgn-label">Keep Alive (ms)</label>
+                            <input type="number" id="keep-alive" class="lgn-input" value="15000" min="1000" max="300000">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="checkbox-group">
+                            <div class="lgn-checkbox">
+                                <input type="checkbox" id="enable-0rtt">
+                                <label for="enable-0rtt">Enable 0-RTT</label>
+                            </div>
+                            <div class="lgn-checkbox">
+                                <input type="checkbox" id="enable-key-update">
+                                <label for="enable-key-update">Enable Key Update</label>
+                            </div>
+                            <div class="lgn-checkbox">
+                                <input type="checkbox" id="enable-datagrams">
+                                <label for="enable-datagrams">Enable Datagrams</label>
+                            </div>
+                            <div class="lgn-checkbox">
+                                <input type="checkbox" id="no-tls">
+                                <label for="no-tls">Disable TLS (Testing Only)</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Network Emulation Tab -->
+                <div class="tab-content" id="network-tab">
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="lgn-label">Packet Loss (%)</label>
+                            <input type="number" id="packet-loss" class="lgn-input" value="0" min="0" max="50" step="0.1">
+                        </div>
+                        <div class="form-field">
+                            <label class="lgn-label">Additional Latency (ms)</label>
+                            <input type="number" id="latency" class="lgn-input" value="0" min="0" max="1000">
+                        </div>
+                        <div class="form-field">
+                            <label class="lgn-label">Packet Duplication (%)</label>
+                            <input type="number" id="packet-dup" class="lgn-input" value="0" min="0" max="10" step="0.1">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="lgn-label">Bandwidth Limit (Mbps)</label>
+                            <input type="number" id="bandwidth-limit" class="lgn-input" value="0" min="0" max="10000">
+                            <small class="field-hint">0 = unlimited</small>
+                        </div>
+                        <div class="form-field">
+                            <label class="lgn-label">Network Profile</label>
+                            <select id="network-profile" class="lgn-select">
+                                <option value="perfect">Perfect Network</option>
+                                <option value="ethernet">Ethernet (1ms, 0% loss)</option>
+                                <option value="wifi">WiFi (5ms, 0.1% loss)</option>
+                                <option value="4g">4G Mobile (50ms, 1% loss)</option>
+                                <option value="3g">3G Mobile (150ms, 3% loss)</option>
+                                <option value="satellite">Satellite (600ms, 0.5% loss)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Advanced Tab -->
+                <div class="tab-content" id="advanced-tab">
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="lgn-label">FEC Redundancy (%)</label>
+                            <input type="number" id="fec-redundancy" class="lgn-input" value="0" min="0" max="50" step="1">
+                        </div>
+                        <div class="form-field">
+                            <label class="lgn-label">PQC Algorithm</label>
+                            <select id="pqc-algorithm" class="lgn-select">
+                                <option value="baseline">Baseline (No PQC)</option>
+                                <option value="ml-kem-512">ML-KEM-512</option>
+                                <option value="ml-kem-768">ML-KEM-768</option>
+                                <option value="dilithium-2">Dilithium-2</option>
+                                <option value="hybrid">Hybrid</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="checkbox-group">
+                            <div class="lgn-checkbox">
+                                <input type="checkbox" id="enable-fec">
+                                <label for="enable-fec">Enable Forward Error Correction</label>
+                            </div>
+                            <div class="lgn-checkbox">
+                                <input type="checkbox" id="enable-pqc">
+                                <label for="enable-pqc">Enable Post-Quantum Cryptography</label>
+                            </div>
+                            <div class="lgn-checkbox">
+                                <input type="checkbox" id="enable-ai-routing">
+                                <label for="enable-ai-routing">Enable AI Routing</label>
+                            </div>
+                            <div class="lgn-checkbox">
+                                <input type="checkbox" id="enable-prometheus">
+                                <label for="enable-prometheus">Export Prometheus Metrics</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Educational Scenarios Section -->
+            <section class="dashboard-section">
+                <h2>Educational Scenarios</h2>
+                
+                <!-- Scenario Execution Progress -->
+                <div id="scenario-progress" class="scenario-progress-container" style="display: none;">
+                    <div class="progress-header">
+                        <h3 id="current-scenario-title">Running Scenario</h3>
+                        <div class="progress-controls">
+                            <button id="pause-scenario" class="lgn-stroked-button">Pause</button>
+                            <button id="stop-scenario" class="lgn-stroked-button lgn-warn">Stop</button>
+                            <button id="export-scenario" class="lgn-stroked-button">Export Results</button>
+                        </div>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar">
+                            <div id="scenario-progress-fill" class="progress-fill" style="width: 0%"></div>
+                        </div>
+                        <span id="scenario-progress-text" class="progress-text">0% Complete</span>
+                    </div>
+                    <div class="scenario-steps">
+                        <div id="scenario-steps-list" class="steps-list"></div>
+                    </div>
+                    <div class="scenario-insights">
+                        <h4>Real-time Insights</h4>
+                        <div id="scenario-insights-content" class="insights-content"></div>
+                    </div>
+                </div>
+                
+                <div class="scenarios-grid">
+                    <div class="scenario-card" data-scenario="handshake-demo">
+                        <div class="scenario-icon">[HS]</div>
+                        <h3>QUIC Handshake Demo</h3>
+                        <p>Interactive demonstration of QUIC handshake process, including 0-RTT and 1-RTT comparisons</p>
+                        <div class="scenario-stats">
+                            <span class="stat">Duration: ~2 min</span>
+                            <span class="stat">Level: Beginner</span>
+                        </div>
+                        <button class="lgn-button scenario-btn">Start Demo</button>
+                    </div>
+                    
+                    <div class="scenario-card" data-scenario="congestion-comparison">
+                        <div class="scenario-icon">[CC]</div>
+                        <h3>Congestion Control Comparison</h3>
+                        <p>Compare different congestion control algorithms (CUBIC, BBR, Reno) under various network conditions</p>
+                        <div class="scenario-stats">
+                            <span class="stat">Duration: ~5 min</span>
+                            <span class="stat">Level: Intermediate</span>
+                        </div>
+                        <button class="lgn-button scenario-btn">Start Comparison</button>
+                    </div>
+                    
+                    <div class="scenario-card" data-scenario="stream-multiplexing">
+                        <div class="scenario-icon">[SM]</div>
+                        <h3>Stream Multiplexing</h3>
+                        <p>Demonstrate how QUIC multiplexes multiple streams over a single connection</p>
+                        <div class="scenario-stats">
+                            <span class="stat">Duration: ~3 min</span>
+                            <span class="stat">Level: Intermediate</span>
+                        </div>
+                        <button class="lgn-button scenario-btn">Start Demo</button>
+                    </div>
+                    
+                    <div class="scenario-card" data-scenario="loss-recovery">
+                        <div class="scenario-icon">[LR]</div>
+                        <h3>Loss Recovery Analysis</h3>
+                        <p>Study QUIC's loss detection and recovery mechanisms under packet loss conditions</p>
+                        <div class="scenario-stats">
+                            <span class="stat">Duration: ~4 min</span>
+                            <span class="stat">Level: Advanced</span>
+                        </div>
+                        <button class="lgn-button scenario-btn">Start Analysis</button>
+                    </div>
+                    
+                    <div class="scenario-card" data-scenario="migration-demo">
+                        <div class="scenario-icon">[CM]</div>
+                        <h3>Connection Migration</h3>
+                        <p>Demonstrate QUIC's ability to migrate connections between network paths</p>
+                        <div class="scenario-stats">
+                            <span class="stat">Duration: ~3 min</span>
+                            <span class="stat">Level: Advanced</span>
+                        </div>
+                        <button class="lgn-button scenario-btn">Start Demo</button>
+                    </div>
+                    
+                    <div class="scenario-card" data-scenario="security-features">
+                        <div class="scenario-icon">[SF]</div>
+                        <h3>Security Features</h3>
+                        <p>Explore QUIC's built-in security features including encryption and authentication</p>
+                        <div class="scenario-stats">
+                            <span class="stat">Duration: ~4 min</span>
+                            <span class="stat">Level: Advanced</span>
+                        </div>
+                        <button class="lgn-button scenario-btn">Start Exploration</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Export and Reporting Section -->
+            <section class="dashboard-section">
+                <h2>Export and Reporting</h2>
+                <div class="export-controls">
+                    <div class="export-group">
+                        <h4>Wireshark Capture</h4>
+                        <p>Export network traffic for detailed protocol analysis</p>
+                        <div class="export-actions">
+                            <button id="start-capture" class="lgn-button">Start Capture</button>
+                            <button id="stop-capture" class="lgn-stroked-button" disabled>Stop Capture</button>
+                            <button id="download-pcap" class="lgn-stroked-button" disabled>Download PCAP</button>
+                        </div>
+                        <div class="capture-status">
+                            <span id="capture-status-text">Ready to capture</span>
+                            <span id="capture-size">0 packets</span>
+                        </div>
+                    </div>
+                    
+                    <div class="export-group">
+                        <h4>Educational Report</h4>
+                        <p>Generate comprehensive PDF report with analysis and insights</p>
+                        <div class="report-options">
+                            <div class="lgn-checkbox">
+                                <input type="checkbox" id="include-charts" checked>
+                                <label for="include-charts">Include Performance Charts</label>
+                            </div>
+                            <div class="lgn-checkbox">
+                                <input type="checkbox" id="include-analysis" checked>
+                                <label for="include-analysis">Include Educational Analysis</label>
+                            </div>
+                            <div class="lgn-checkbox">
+                                <input type="checkbox" id="include-recommendations" checked>
+                                <label for="include-recommendations">Include Recommendations</label>
+                            </div>
+                        </div>
+                        <div class="export-actions">
+                            <button id="generate-report" class="lgn-button">Generate PDF Report</button>
+                            <button id="download-report" class="lgn-stroked-button" disabled>Download Report</button>
+                        </div>
+                    </div>
+                    
+                    <div class="export-group">
+                        <h4>Data Export</h4>
+                        <p>Export raw metrics and configuration data</p>
+                        <div class="export-actions">
+                            <button id="export-csv" class="lgn-stroked-button">Export CSV</button>
+                            <button id="export-json" class="lgn-stroked-button">Export JSON</button>
+                            <button id="export-config" class="lgn-stroked-button">Export Config</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- System Logs Section -->
+            <section class="dashboard-section">
+                <h2>System Logs</h2>
+                <div class="logs-controls">
+                    <div class="log-filters">
+                        <select id="log-level" class="lgn-select">
+                            <option value="all">All Levels</option>
+                            <option value="info">Info</option>
+                            <option value="warn">Warning</option>
+                            <option value="error">Error</option>
+                            <option value="debug">Debug</option>
+                        </select>
+                        <select id="log-component" class="lgn-select">
+                            <option value="all">All Components</option>
+                            <option value="handshake">Handshake</option>
+                            <option value="congestion">Congestion Control</option>
+                            <option value="streams">Streams</option>
+                            <option value="security">Security</option>
+                        </select>
+                        <button id="clear-logs" class="lgn-stroked-button">Clear Logs</button>
+                        <button id="export-logs" class="lgn-stroked-button">Export Logs</button>
+                    </div>
+                </div>
+                <div id="logs" class="logs-terminal">Dashboard initialized. Ready for QUIC testing operations.</div>
+            </section>
+        </div>
+    </div>
+
+    <footer>
+        <div class="fill-space"></div>
+        <div class="watermark">
+            <span class="powered">Powered by</span>
+            <span class="lgn-logo-watermark">QUIC Test Suite</span>
+        </div>
+    </footer>
+
+    <script src="/static/js/dashboard-core.js"></script>
+    <script src="/static/js/dashboard-charts.js"></script>
+    <script src="/static/js/dashboard-scenarios.js"></script>
+    <script src="/static/js/dashboard-export.js"></script>
+    <script src="/static/js/dashboard-api.js"></script>
+</body>
+</html>

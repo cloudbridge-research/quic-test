@@ -120,7 +120,7 @@ func saveCSV(filename string, rows [][]string) error {
 func makeReportMarkdown(cfg TestConfig, metrics any) string {
 	m, ok := metrics.(map[string]interface{})
 	if !ok {
-		return fmt.Sprintf("# 2GC CloudBridge QUIC testing\n\n**Параметры:** \"%+v\"\n\n**Метрики:** \"%+v\"\n", cfg, metrics)
+		return fmt.Sprintf("# Cloudbridge Research QUIC testing\n\n**Параметры:** \"%+v\"\n\n**Метрики:** \"%+v\"\n", cfg, metrics)
 	}
 	latencies, _ := m["Latencies"].([]float64)
 	p50, p95, p99 := calcPercentiles(latencies)
@@ -134,7 +134,7 @@ func makeReportMarkdown(cfg TestConfig, metrics any) string {
 	tsHandshakeTime, _ := m["TimeSeriesHandshakeTime"].([]interface{})
 
 	var buf bytes.Buffer
-	buf.WriteString(fmt.Sprintf(`# 2GC CloudBridge QUIC testing\n\n**Параметры:** "%+v"\n\n**Метрики:**\n\n- Success: %v\n- Errors: %v\n- BytesSent: %v\n- Avg Latency: %.2f ms\n- p50: %.2f ms\n- p95: %.2f ms\n- p99: %.2f ms\n- Jitter: %.2f ms\n- PacketLoss: %v %%\n- Retransmits: %v\n- TLSVersion: %v\n- CipherSuite: %v\n- SessionResumptionCount: %v\n- 0-RTT: %v\n- 1-RTT: %v\n- OutOfOrder: %v\n- FlowControlEvents: %v\n- KeyUpdateEvents: %v\n- ErrorTypeCounts: %v\n`, cfg, m["Success"], m["Errors"], m["BytesSent"], avg, p50, p95, p99, jitter, m["PacketLoss"], m["Retransmits"], m["TLSVersion"], m["CipherSuite"], m["SessionResumptionCount"], m["ZeroRTTCount"], m["OneRTTCount"], m["OutOfOrderCount"], m["FlowControlEvents"], m["KeyUpdateEvents"], m["ErrorTypeCounts"]))
+	buf.WriteString(fmt.Sprintf(`# Cloudbridge Research QUIC testing\n\n**Параметры:** "%+v"\n\n**Метрики:**\n\n- Success: %v\n- Errors: %v\n- BytesSent: %v\n- Avg Latency: %.2f ms\n- p50: %.2f ms\n- p95: %.2f ms\n- p99: %.2f ms\n- Jitter: %.2f ms\n- PacketLoss: %v %%\n- Retransmits: %v\n- TLSVersion: %v\n- CipherSuite: %v\n- SessionResumptionCount: %v\n- 0-RTT: %v\n- 1-RTT: %v\n- OutOfOrder: %v\n- FlowControlEvents: %v\n- KeyUpdateEvents: %v\n- ErrorTypeCounts: %v\n`, cfg, m["Success"], m["Errors"], m["BytesSent"], avg, p50, p95, p99, jitter, m["PacketLoss"], m["Retransmits"], m["TLSVersion"], m["CipherSuite"], m["SessionResumptionCount"], m["ZeroRTTCount"], m["OneRTTCount"], m["OutOfOrderCount"], m["FlowControlEvents"], m["KeyUpdateEvents"], m["ErrorTypeCounts"]))
 
 	buf.WriteString("\n## Временные ряды (Time Series)\n")
 	buf.WriteString("\n### Latency (ms)\n")

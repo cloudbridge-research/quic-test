@@ -1,0 +1,14 @@
+{{define "navbar"}}
+<nav class="navbar">
+    <div class="nav-brand">
+        <h1>QUIC Test Suite</h1>
+    </div>
+    <div class="nav-links">
+        <a href="/" {{if eq .ActivePage "dashboard"}}class="active"{{end}}>Dashboard</a>
+        <a href="/test/new" {{if eq .ActivePage "new-test"}}class="active"{{end}}>New Test</a>
+        <a href="/tests" {{if eq .ActivePage "tests"}}class="active"{{end}}>Test History</a>
+        <a href="/docs" {{if eq .ActivePage "docs"}}class="active"{{end}}>Documentation</a>
+        <a href="/api-docs" {{if eq .ActivePage "api-docs"}}class="active"{{end}}>API Docs</a>
+    </div>
+</nav>
+{{end}}

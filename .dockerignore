@@ -1,0 +1,51 @@
+# Git
+.git
+.gitignore
+
+# Build artifacts
+quic-test
+quic-gui
+quic-test-build
+quic-test-dashboard
+tui
+
+# Documentation
+*.md
+docs/
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+
+# Node modules (if any)
+node_modules/
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+
+# Scripts (keep only necessary ones)
+scripts/
+
+# Test files
+*_test.go
+
+# Binaries in bin/
+bin/
+
+# Prometheus data
+prometheus/data/
+
+# Grafana data
+grafana/data/
