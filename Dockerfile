@@ -21,6 +21,7 @@ COPY . .
 RUN go build -o bin/quic-test . && \
     go build -o bin/quic-client ./cmd/quic-client && \
     go build -o bin/quic-server ./cmd/quic-server && \
+    go build -o bin/quic-gui ./cmd/gui && \
     go build -o bin/dashboard ./cmd/dashboard
 
 # Этап 2: Runtime
@@ -39,12 +40,19 @@ WORKDIR /app
 # Копирование собранных бинарников
 COPY --from=builder /app/bin/ ./
 
+# Копирование статических файлов для GUI
+COPY --from=builder /app/web/ ./web/
+
+# Копирование entrypoint скрипта
+COPY docker-entrypoint.sh ./
+RUN chmod +x docker-entrypoint.sh
+
 # Установка прав доступа
 RUN chown -R quic:quic /app
 USER quic
 
 # Открытие портов
-EXPOSE 9000 9990 2112 2113 6060
+EXPOSE 8080 8081 9000 9990 2112 2113 6060
 
 # Переменные окружения
 ENV QUIC_SERVER_ADDR=:9000
@@ -66,4 +74,5 @@ LABEL org.opencontainers.image.licenses="Apache-2.0"
 LABEL org.opencontainers.image.vendor="2GC"
 
 # Команда по умолчанию
-CMD ["./quic-test", "--mode=test", "--connections=2", "--streams=4", "--rate=100", "--prometheus"]
+ENTRYPOINT ["./docker-entrypoint.sh"]
+CMD ["--mode=test", "--connections=2", "--streams=4", "--rate=100", "--prometheus"]

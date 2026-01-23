@@ -1291,9 +1291,13 @@ func startPrometheusExporter(metrics *Metrics) {
 	})
 
 	prometheus.MustRegister(success, errors, bytesSent, avgLatency, throughput)
-	http.Handle("/metrics", promhttp.Handler())
-	fmt.Println("Prometheus endpoint доступен на :2112/metrics")
-	if err := http.ListenAndServe(":2112", nil); err != nil {
+	
+	// Создаем отдельный HTTP mux для клиента
+	clientMux := http.NewServeMux()
+	clientMux.Handle("/metrics", promhttp.Handler())
+	
+	fmt.Println("Prometheus endpoint клиента доступен на :2112/metrics")
+	if err := http.ListenAndServe(":2112", clientMux); err != nil {
 		log.Printf("Failed to start Prometheus server: %v", err)
 	}
 }
